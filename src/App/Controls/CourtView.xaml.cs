@@ -3,6 +3,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SkiaSharp;
 using SkiaSharp.Views.Windows;
+using FastBoard.Core.Tools;
+using FastBoard.Core.Models;
+using System.IO;
 
 namespace FastBoard.Controls;
 
