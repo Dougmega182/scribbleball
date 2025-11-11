@@ -245,9 +245,19 @@ public sealed partial class CourtView : UserControl
         canvas.DrawRoundRect(r, p);
     }
 
+    private void DrawSelection(SKCanvas canvas, SKRect rect)
+    {
+        using var p = new SKPaint{ Color = SKColors.Yellow, Style=SKPaintStyle.Stroke, StrokeWidth=2, PathEffect=SKPathEffect.CreateDash(new float[]{6,6},0), IsAntialias=true };
+        canvas.DrawRect(rect, p);
+    }
+
     private readonly Dictionary<string, SKBitmap> _bitmapCache = new();
     private void DrawToken(SKCanvas canvas, FastBoard.Core.Models.Token t)
     {
+        if (t.Selected)
+        {
+            DrawSelection(canvas, new SKRect(t.Position.X-24, t.Position.Y-24, t.Position.X+24, t.Position.Y+24));
+        }
         if (string.IsNullOrEmpty(t.ImagePath))
         {
             using var p = new SKPaint{ Color = SKColors.Blue, Style=SKPaintStyle.Fill, IsAntialias=true };

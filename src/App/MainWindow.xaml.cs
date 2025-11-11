@@ -42,29 +42,13 @@ namespace FastBoard
 
         private void OnExportPng(object sender, RoutedEventArgs e)
         {
-            // Try to locate CourtView's SKXamlCanvas via visual tree
-            var court = FindDescendant<Controls.CourtView>(this.Content as FrameworkElement);
+            var court = FindDescendant<Controls.CourtView>(this.Content as FrameworkElement) ?? Court;
             if (court == null) return;
-            var field = typeof(Controls.CourtView).GetField("Canvas", System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Public);
-            if (field?.GetValue(court) is SKXamlCanvas sk)
-            {
-                // Render to bitmap by triggering a draw to an off-screen surface
-                var width = (int)Math.Max(1, sk.ActualWidth);
-                var height = (int)Math.Max(1, sk.ActualHeight);
-                using var image = new SKBitmap(width, height);
-                using var surface = SKSurface.Create(new SKImageInfo(width, height));
-                // We can't easily reuse draw code; for now, just capture a solid image to demonstrate pipeline
-                var canvas = surface.Canvas;
-                canvas.Clear(SKColors.ForestGreen);
-                using var paint = new SKPaint{ Color = SKColors.White, StrokeWidth=3, Style=SKPaintStyle.Stroke, IsAntialias=true };
-                canvas.DrawRect(new SKRect(10,10,width-10,height-10), paint);
-                canvas.Flush();
-                Directory.CreateDirectory("dist");
-                using var snapshot = surface.Snapshot();
-                using var data = snapshot.Encode(SKEncodedImageFormat.Png, 90);
-                using var fs = File.OpenWrite(IOPath.Combine("dist","export.png"));
-                data.SaveTo(fs);
-            }
+            var width = (int)Math.Max(800, Court.ActualWidth);
+            var height = (int)Math.Max(600, Court.ActualHeight);
+            Directory.CreateDirectory("dist");
+            var path = IOPath.Combine("dist","export.png");
+            court.ExportPng(path, width, height);
         }
 
         private void OnAddSampleToken(object sender, RoutedEventArgs e)

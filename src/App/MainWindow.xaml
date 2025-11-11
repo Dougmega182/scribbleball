@@ -30,6 +30,9 @@
             <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
             <AppBarButton Icon="Video" Label="Export Frames" Click="OnExportFrames"/>
+            <AppBarButton Icon="ZoomIn" Label="Zoom In" Click="OnZoomIn"/>
+            <AppBarButton Icon="ZoomOut" Label="Zoom Out" Click="OnZoomOut"/>
+            <AppBarButton Icon="Refresh" Label="Reset View" Click="OnZoomReset"/>
         </CommandBar>
         <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8">
             <TextBlock Text="Palette" Margin="8,0,0,0"/>
