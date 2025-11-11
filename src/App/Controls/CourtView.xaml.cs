@@ -10,7 +10,7 @@ public sealed partial class CourtView : UserControl
 {
     private readonly List<List<(SKPoint pt, float pressure)>> _strokes = new();
     private List<(SKPoint pt, float pressure)>? _current;
-{
+
     public CourtView()
     {
         this.InitializeComponent();
