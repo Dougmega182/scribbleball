@@ -179,6 +179,9 @@ public sealed partial class CourtView : UserControl
 
     private void OnPointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
+        var pt = e.GetCurrentPoint(Canvas);
+        var p = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        float pressure = (float)pt.Properties.Pressure;
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
         {
             tool.End(new System.Numerics.Vector2(p.X, p.Y), pressure);
@@ -190,24 +193,26 @@ public sealed partial class CourtView : UserControl
         }
         Canvas.ReleasePointerCapture(e.Pointer);
         Canvas.Invalidate();
-        void DrawArrow(SKCanvas canvas, FastBoard.Core.Models.ArrowShape a)
-        {
-            using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=a.Thickness, IsAntialias=true, StrokeCap=SKStrokeCap.Round };
-            canvas.DrawLine(new SKPoint(a.Start.X, a.Start.Y), new SKPoint(a.End.X, a.End.Y), p);
-            var (h1,h2) = FastBoard.Core.Geometry.GeometryUtils.ArrowHead(new System.Numerics.Vector2(a.Start.X,a.Start.Y), new System.Numerics.Vector2(a.End.X,a.End.Y), a.HeadLength, a.HeadAngleDeg);
-            using var p2 = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=a.Thickness, IsAntialias=true, StrokeCap=SKStrokeCap.Round };
-            canvas.DrawLine(new SKPoint(h1.X, h1.Y), new SKPoint(a.End.X, a.End.Y), p2);
-            canvas.DrawLine(new SKPoint(h2.X, h2.Y), new SKPoint(a.End.X, a.End.Y), p2);
-        }
-
-        void DrawDashed(SKCanvas canvas, FastBoard.Core.Models.DashedShape d)
-        {
-            if (d.Points.Count < 2) return;
-            using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=d.Thickness, IsAntialias=true, PathEffect = SKPathEffect.CreateDash(new float[]{d.Dash, d.Gap}, 0)};
-            var path = new SKPath();
-            path.MoveTo(d.Points[0].X, d.Points[0].Y);
-            for (int i=1;i<d.Points.Count;i++) path.LineTo(d.Points[i].X, d.Points[i].Y);
-            canvas.DrawPath(path, p);
-        }
     }
+
+    private void DrawArrow(SKCanvas canvas, FastBoard.Core.Models.ArrowShape a)
+    {
+        using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=a.Thickness, IsAntialias=true, StrokeCap=SKStrokeCap.Round };
+        canvas.DrawLine(new SKPoint(a.Start.X, a.Start.Y), new SKPoint(a.End.X, a.End.Y), p);
+        var (h1,h2) = FastBoard.Core.Geometry.GeometryUtils.ArrowHead(new System.Numerics.Vector2(a.Start.X,a.Start.Y), new System.Numerics.Vector2(a.End.X,a.End.Y), a.HeadLength, a.HeadAngleDeg);
+        using var p2 = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=a.Thickness, IsAntialias=true, StrokeCap=SKStrokeCap.Round };
+        canvas.DrawLine(new SKPoint(h1.X, h1.Y), new SKPoint(a.End.X, a.End.Y), p2);
+        canvas.DrawLine(new SKPoint(h2.X, h2.Y), new SKPoint(a.End.X, a.End.Y), p2);
+    }
+
+    private void DrawDashed(SKCanvas canvas, FastBoard.Core.Models.DashedShape d)
+    {
+        if (d.Points.Count < 2) return;
+        using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=d.Thickness, IsAntialias=true, PathEffect = SKPathEffect.CreateDash(new float[]{d.Dash, d.Gap}, 0)};
+        var path = new SKPath();
+        path.MoveTo(d.Points[0].X, d.Points[0].Y);
+        for (int i=1;i<d.Points.Count;i++) path.LineTo(d.Points[i].X, d.Points[i].Y);
+        canvas.DrawPath(path, p);
+    }
+}
 }
