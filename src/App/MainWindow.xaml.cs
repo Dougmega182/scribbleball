@@ -67,6 +67,14 @@ namespace FastBoard
             }
         }
 
+        private void OnAddSampleToken(object sender, RoutedEventArgs e)
+        {
+            var p = new System.Numerics.Vector2(200,200);
+            var sample = IOPath.Combine("sample_data","placeholder1.png");
+            _vm.Shapes.Add(new Core.Models.Token{ Name="P1", ImagePath=sample, Position=p, Scale=0.75f });
+            Court.InvalidateArrange();
+        }
+
         private void OnExportFrames(object sender, RoutedEventArgs e)
         {
             var court = FindDescendant<Controls.CourtView>(this.Content as FrameworkElement);

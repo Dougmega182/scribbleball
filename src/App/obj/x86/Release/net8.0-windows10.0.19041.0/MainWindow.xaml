@@ -9,20 +9,28 @@
     mc:Ignorable="d"
     Title="FastBoard">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <CommandBar>
+        <CommandBar Grid.ColumnSpan="2">
             <AppBarButton Icon="Add" Label="New" />
-            <AppBarToggleButton x:ConnectionId='3' Icon="Forward" Label="Arrow" Tag="Arrow"                        />
-            <AppBarToggleButton x:ConnectionId='4' Icon="Shuffle" Label="Dribble" Tag="Dribble"                        />
-            <AppBarButton x:ConnectionId='5' Icon="Save" Label="Save"                       />
-            <AppBarButton x:ConnectionId='6' Icon="OpenFile" Label="Open"                       />
-            <AppBarButton x:ConnectionId='7' Icon="Upload" Label="Export PNG"                    />
-            <AppBarButton x:ConnectionId='8' Icon="Video" Label="Export Frames"                       />
+            <AppBarToggleButton x:ConnectionId='4' Icon="Forward" Label="Arrow" Tag="Arrow"                        />
+            <AppBarToggleButton x:ConnectionId='5' Icon="Shuffle" Label="Dribble" Tag="Dribble"                        />
+            <AppBarButton x:ConnectionId='6' Icon="Save" Label="Save"                       />
+            <AppBarButton x:ConnectionId='7' Icon="OpenFile" Label="Open"                       />
+            <AppBarButton x:ConnectionId='8' Icon="Upload" Label="Export PNG"                    />
+            <AppBarButton x:ConnectionId='9' Icon="Video" Label="Export Frames"                       />
         </CommandBar>
-        <Grid Grid.Row="1">
+        <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8">
+            <TextBlock Text="Palette" Margin="8,0,0,0"/>
+            <Button x:ConnectionId='3' Content="Add Sample Token"                          Margin="8"/>
+        </StackPanel>
+        <Grid Grid.Row="1" Grid.Column="1">
             <controls:CourtView x:ConnectionId='2' HalfCourt="True" x:Name="Court"/>
         </Grid>
     </Grid>

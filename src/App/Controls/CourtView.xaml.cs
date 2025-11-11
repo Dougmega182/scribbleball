@@ -115,6 +115,9 @@ public sealed partial class CourtView : UserControl
                     case FastBoard.Core.Models.DashedShape d:
                         DrawDashed(canvas, d);
                         break;
+                    case FastBoard.Core.Models.Token t:
+                        DrawToken(canvas, t);
+                        break;
                 }
             }
         }
@@ -214,4 +217,32 @@ public sealed partial class CourtView : UserControl
         for (int i=1;i<d.Points.Count;i++) path.LineTo(d.Points[i].X, d.Points[i].Y);
         canvas.DrawPath(path, p);
     }
+
+    private readonly Dictionary<string, SKBitmap> _bitmapCache = new();
+    private void DrawToken(SKCanvas canvas, FastBoard.Core.Models.Token t)
+    {
+        if (string.IsNullOrEmpty(t.ImagePath))
+        {
+            using var p = new SKPaint{ Color = SKColors.Blue, Style=SKPaintStyle.Fill, IsAntialias=true };
+            canvas.DrawCircle(t.Position.X, t.Position.Y, 18*t.Scale, p);
+            return;
+        }
+        if (!_bitmapCache.TryGetValue(t.ImagePath, out var bmp))
+        {
+            try
+            {
+                using var fs = File.OpenRead(t.ImagePath);
+                bmp = SKBitmap.Decode(fs);
+                if (bmp != null) _bitmapCache[t.ImagePath] = bmp;
+            }
+            catch { }
+        }
+        if (bmp != null)
+        {
+            var w = bmp.Width * t.Scale; var h = bmp.Height * t.Scale;
+            var dest = new SKRect(t.Position.X - w/2, t.Position.Y - h/2, t.Position.X + w/2, t.Position.Y + h/2);
+            canvas.DrawBitmap(bmp, dest);
+        }
+    }
 }
+

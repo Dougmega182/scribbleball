@@ -9,11 +9,15 @@
     mc:Ignorable="d"
     Title="FastBoard">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <CommandBar>
+        <CommandBar Grid.ColumnSpan="2">
             <AppBarButton Icon="Add" Label="New" />
             <AppBarToggleButton Icon="Forward" Label="Arrow" Tag="Arrow" Checked="OnToolToggle" />
             <AppBarToggleButton Icon="Shuffle" Label="Dribble" Tag="Dribble" Checked="OnToolToggle" />
@@ -22,7 +26,11 @@
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
             <AppBarButton Icon="Video" Label="Export Frames" Click="OnExportFrames"/>
         </CommandBar>
-        <Grid Grid.Row="1">
+        <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8">
+            <TextBlock Text="Palette" Margin="8,0,0,0"/>
+            <Button Content="Add Sample Token" Click="OnAddSampleToken" Margin="8"/>
+        </StackPanel>
+        <Grid Grid.Row="1" Grid.Column="1">
             <controls:CourtView HalfCourt="True" x:Name="Court"/>
         </Grid>
     </Grid>
