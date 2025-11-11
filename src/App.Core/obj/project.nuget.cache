@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "JmcUJQ+tW6c=",
+  "success": true,
+  "projectFilePath": "E:\\Ai\\WORK-IN-PROGRESS\\basketball app\\src\\App.Core\\App.Core.csproj",
+  "expectedPackageFiles": [
+    "D:\\Users\\dalep\\.nuget\\packages\\skiasharp\\2.88.6\\skiasharp.2.88.6.nupkg.sha512",
+    "D:\\Users\\dalep\\.nuget\\packages\\skiasharp.nativeassets.macos\\2.88.6\\skiasharp.nativeassets.macos.2.88.6.nupkg.sha512",
+    "D:\\Users\\dalep\\.nuget\\packages\\skiasharp.nativeassets.win32\\2.88.6\\skiasharp.nativeassets.win32.2.88.6.nupkg.sha512"
+  ],
+  "logs": []
+}
