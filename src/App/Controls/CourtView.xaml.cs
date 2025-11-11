@@ -115,6 +115,12 @@ public sealed partial class CourtView : UserControl
                     case FastBoard.Core.Models.DashedShape d:
                         DrawDashed(canvas, d);
                         break;
+                    case FastBoard.Core.Tools.CurveShape c:
+                        DrawCurve(canvas, c);
+                        break;
+                    case FastBoard.Core.Tools.ScreenShape s:
+                        DrawScreen(canvas, s);
+                        break;
                     case FastBoard.Core.Models.Token t:
                         DrawToken(canvas, t);
                         break;
@@ -216,6 +222,23 @@ public sealed partial class CourtView : UserControl
         path.MoveTo(d.Points[0].X, d.Points[0].Y);
         for (int i=1;i<d.Points.Count;i++) path.LineTo(d.Points[i].X, d.Points[i].Y);
         canvas.DrawPath(path, p);
+    }
+
+    private void DrawCurve(SKCanvas canvas, FastBoard.Core.Tools.CurveShape c)
+    {
+        using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=c.Thickness, IsAntialias=true };
+        var path = new SKPath();
+        path.MoveTo(c.P0.X, c.P0.Y);
+        path.QuadTo(c.P1.X, c.P1.Y, c.P2.X, c.P2.Y);
+        canvas.DrawPath(path, p);
+    }
+
+    private void DrawScreen(SKCanvas canvas, FastBoard.Core.Tools.ScreenShape s)
+    {
+        using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=s.Thickness, IsAntialias=true };
+        var half = new SKPoint(s.Size.X/2, s.Size.Y/2);
+        var r = new SKRoundRect(new SKRect(s.Center.X-half.X, s.Center.Y-half.Y, s.Center.X+half.X, s.Center.Y+half.Y), s.CornerRadius, s.CornerRadius);
+        canvas.DrawRoundRect(r, p);
     }
 
     private readonly Dictionary<string, SKBitmap> _bitmapCache = new();

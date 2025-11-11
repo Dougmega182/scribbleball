@@ -13,6 +13,9 @@ public partial class BoardViewModel : ObservableObject
 
     private ArrowTool? arrow;
     private DribbleTool? dribble;
+    private CurveTool? curve;
+    private ScreenTool? screen;
+    private EraserTool? eraser;
 
     public IDrawingTool? GetActiveDrawingTool()
     {
@@ -20,6 +23,9 @@ public partial class BoardViewModel : ObservableObject
         {
             ToolType.Arrow => arrow ??= new ArrowTool(Shapes),
             ToolType.Dribble => dribble ??= new DribbleTool(Shapes),
+            ToolType.Curve => curve ??= new CurveTool(Shapes),
+            ToolType.Screen => screen ??= new ScreenTool(Shapes),
+            ToolType.Eraser => eraser ??= new EraserTool(Shapes),
             _ => null
         };
     }

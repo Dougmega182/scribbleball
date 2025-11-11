@@ -21,6 +21,9 @@
             <AppBarButton Icon="Add" Label="New" />
             <AppBarToggleButton Icon="Forward" Label="Arrow" Tag="Arrow" Checked="OnToolToggle" />
             <AppBarToggleButton Icon="Shuffle" Label="Dribble" Tag="Dribble" Checked="OnToolToggle" />
+            <AppBarToggleButton Icon="Edit" Label="Curve" Tag="Curve" Checked="OnToolToggle" />
+            <AppBarToggleButton Icon="Rotate" Label="Screen" Tag="Screen" Checked="OnToolToggle" />
+            <AppBarToggleButton Icon="Erase" Label="Eraser" Tag="Eraser" Checked="OnToolToggle" />
             <AppBarButton Icon="Save" Label="Save" Click="OnSavePlaybook"/>
             <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
