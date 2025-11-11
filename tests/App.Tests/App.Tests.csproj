@@ -20,4 +20,7 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\App.Core\App.Core.csproj" />
+  </ItemGroup>
 </Project>

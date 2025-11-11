@@ -97,3 +97,11 @@ E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\obj\Release\net8.0\refint\
 E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\obj\Release\net8.0\App.Tests.pdb
 E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\obj\Release\net8.0\App.Tests.genruntimeconfig.cache
 E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\obj\Release\net8.0\ref\App.Tests.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\CoverletSourceRootsMapping_App.Tests
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\SkiaSharp.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\runtimes\osx\native\libSkiaSharp.dylib
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\runtimes\win-arm64\native\libSkiaSharp.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\runtimes\win-x64\native\libSkiaSharp.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\runtimes\win-x86\native\libSkiaSharp.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\App.Core.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\App.Core.pdb

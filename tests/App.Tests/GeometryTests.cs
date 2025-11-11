@@ -1,3 +1,5 @@
+using System.Numerics;
+using FastBoard.Core.Geometry;
 using Xunit;
 
 namespace App.Tests;
@@ -9,7 +11,7 @@ public class GeometryTests
     {
         var from = new System.Numerics.Vector2(0,0);
         var to = new System.Numerics.Vector2(10,0);
-        var (p1,p2) = FastBoard.Core.Geometry.GeometryUtils.ArrowHead(from, to, 5, 30);
+        (Vector2 p1, Vector2 p2) = GeometryUtils.ArrowHead(from, to, 5, 30);
         Assert.True(p1.X < 10 && p2.X < 10);
     }
 
