@@ -12,6 +12,7 @@
           "App.Data": "1.0.0",
           "CommunityToolkit.Mvvm": "8.2.2",
           "Microsoft.WindowsAppSDK": "1.5.241001000",
+          "SkiaSharp.Views.WinUI": "2.88.6",
           "runtimepack.Microsoft.Windows.SDK.NET.Ref": "10.0.19041.56"
         },
         "runtime": {
@@ -351,6 +352,18 @@
           }
         }
       },
+      "SkiaSharp.Views.WinUI/2.88.6": {
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.5.241001000",
+          "SkiaSharp": "2.88.6"
+        },
+        "runtime": {
+          "lib/net6.0-windows10.0.19041.0/SkiaSharp.Views.Windows.dll": {
+            "assemblyVersion": "2.88.0.0",
+            "fileVersion": "2.88.6.0"
+          }
+        }
+      },
       "SQLitePCLRaw.bundle_e_sqlite3/2.1.6": {
         "dependencies": {
           "SQLitePCLRaw.lib.e_sqlite3": "2.1.6",
@@ -687,6 +700,13 @@
       "sha512": "sha512-7TzFO0u/g2MpQsTty4fyCDdMcfcWI+aLswwfnYXr3gtNS6VLKdMXPMeKpJa3pJSLnUBN6wD0JjuCe8OoLBQ6cQ==",
       "path": "skiasharp.nativeassets.win32/2.88.6",
       "hashPath": "skiasharp.nativeassets.win32.2.88.6.nupkg.sha512"
+    },
+    "SkiaSharp.Views.WinUI/2.88.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YsUQsncWgj0//PTwkUmyaTTEHem84//4gl974pD7n1qjq4hTKSuumn504p8yl2qUNFHvo/YUYYAVyEQx6477QQ==",
+      "path": "skiasharp.views.winui/2.88.6",
+      "hashPath": "skiasharp.views.winui.2.88.6.nupkg.sha512"
     },
     "SQLitePCLRaw.bundle_e_sqlite3/2.1.6": {
       "type": "package",

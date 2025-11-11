@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:FastBoard"
+    xmlns:controls="using:FastBoard.Controls"
     mc:Ignorable="d"
     Title="FastBoard">
     <Grid>
@@ -18,7 +19,7 @@
             <AppBarButton Icon="OpenFile" Label="Open" />
         </CommandBar>
         <Grid Grid.Row="1">
-            <Canvas x:Name="CourtCanvas" Background="ForestGreen"/>
+            <controls:CourtView HalfCourt="True"/>
         </Grid>
     </Grid>
 </Window>

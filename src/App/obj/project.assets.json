@@ -474,6 +474,23 @@
           }
         }
       },
+      "SkiaSharp.Views.WinUI/2.88.6": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.1.5",
+          "SkiaSharp": "2.88.6"
+        },
+        "compile": {
+          "lib/net6.0-windows10.0.19041.0/SkiaSharp.Views.Windows.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0-windows10.0.19041.0/SkiaSharp.Views.Windows.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "SQLitePCLRaw.bundle_e_sqlite3/2.1.6": {
         "type": "package",
         "dependencies": {
@@ -2122,6 +2139,24 @@
         "skiasharp.nativeassets.win32.nuspec"
       ]
     },
+    "SkiaSharp.Views.WinUI/2.88.6": {
+      "sha512": "YsUQsncWgj0//PTwkUmyaTTEHem84//4gl974pD7n1qjq4hTKSuumn504p8yl2qUNFHvo/YUYYAVyEQx6477QQ==",
+      "type": "package",
+      "path": "skiasharp.views.winui/2.88.6",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "lib/net6.0-windows10.0.18362.0/SkiaSharp.Views.Windows.dll",
+        "lib/net6.0-windows10.0.18362.0/SkiaSharp.Views.Windows.pdb",
+        "lib/net6.0-windows10.0.18362.0/SkiaSharp.Views.Windows.xml",
+        "lib/net6.0-windows10.0.19041.0/SkiaSharp.Views.Windows.dll",
+        "lib/net6.0-windows10.0.19041.0/SkiaSharp.Views.Windows.pdb",
+        "lib/net6.0-windows10.0.19041.0/SkiaSharp.Views.Windows.xml",
+        "skiasharp.views.winui.2.88.6.nupkg.sha512",
+        "skiasharp.views.winui.nuspec"
+      ]
+    },
     "SQLitePCLRaw.bundle_e_sqlite3/2.1.6": {
       "sha512": "BmAf6XWt4TqtowmiWe4/5rRot6GerAeklmOPfviOvwLoF5WwgxcJHAxZtySuyW9r9w+HLILnm8VfJFLCUJYW8A==",
       "type": "package",
@@ -2248,7 +2283,8 @@
       "App.Core >= 1.0.0",
       "App.Data >= 1.0.0",
       "CommunityToolkit.Mvvm >= 8.2.2",
-      "Microsoft.WindowsAppSDK >= 1.5.241001000"
+      "Microsoft.WindowsAppSDK >= 1.5.241001000",
+      "SkiaSharp.Views.WinUI >= 2.88.6"
     ]
   },
   "packageFolders": {
@@ -2307,6 +2343,10 @@
           "Microsoft.WindowsAppSDK": {
             "target": "Package",
             "version": "[1.5.241001000, )"
+          },
+          "SkiaSharp.Views.WinUI": {
+            "target": "Package",
+            "version": "[2.88.6, )"
           }
         },
         "imports": [

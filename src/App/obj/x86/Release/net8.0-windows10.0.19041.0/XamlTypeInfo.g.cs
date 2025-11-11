@@ -224,25 +224,41 @@ namespace App.App_XamlTypeInfo
 
         private void InitTypeTables()
         {
-            _typeNameTable = new string[8];
-            _typeNameTable[0] = "FastBoard.MainWindow";
-            _typeNameTable[1] = "Microsoft.UI.Xaml.Window";
-            _typeNameTable[2] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
-            _typeNameTable[3] = "Microsoft.UI.Xaml.DependencyObject";
-            _typeNameTable[4] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
+            _typeNameTable = new string[16];
+            _typeNameTable[0] = "SkiaSharp.Views.Windows.SKXamlCanvas";
+            _typeNameTable[1] = "Microsoft.UI.Xaml.Controls.Canvas";
+            _typeNameTable[2] = "Microsoft.UI.Xaml.Controls.Panel";
+            _typeNameTable[3] = "SkiaSharp.SKSize";
+            _typeNameTable[4] = "System.ValueType";
             _typeNameTable[5] = "Object";
-            _typeNameTable[6] = "Int32";
-            _typeNameTable[7] = "Boolean";
+            _typeNameTable[6] = "Boolean";
+            _typeNameTable[7] = "Double";
+            _typeNameTable[8] = "FastBoard.Controls.CourtView";
+            _typeNameTable[9] = "Microsoft.UI.Xaml.Controls.UserControl";
+            _typeNameTable[10] = "FastBoard.MainWindow";
+            _typeNameTable[11] = "Microsoft.UI.Xaml.Window";
+            _typeNameTable[12] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
+            _typeNameTable[13] = "Microsoft.UI.Xaml.DependencyObject";
+            _typeNameTable[14] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
+            _typeNameTable[15] = "Int32";
 
-            _typeTable = new global::System.Type[8];
-            _typeTable[0] = typeof(global::FastBoard.MainWindow);
-            _typeTable[1] = typeof(global::Microsoft.UI.Xaml.Window);
-            _typeTable[2] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
-            _typeTable[3] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
-            _typeTable[4] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
+            _typeTable = new global::System.Type[16];
+            _typeTable[0] = typeof(global::SkiaSharp.Views.Windows.SKXamlCanvas);
+            _typeTable[1] = typeof(global::Microsoft.UI.Xaml.Controls.Canvas);
+            _typeTable[2] = typeof(global::Microsoft.UI.Xaml.Controls.Panel);
+            _typeTable[3] = typeof(global::SkiaSharp.SKSize);
+            _typeTable[4] = typeof(global::System.ValueType);
             _typeTable[5] = typeof(global::System.Object);
-            _typeTable[6] = typeof(global::System.Int32);
-            _typeTable[7] = typeof(global::System.Boolean);
+            _typeTable[6] = typeof(global::System.Boolean);
+            _typeTable[7] = typeof(global::System.Double);
+            _typeTable[8] = typeof(global::FastBoard.Controls.CourtView);
+            _typeTable[9] = typeof(global::Microsoft.UI.Xaml.Controls.UserControl);
+            _typeTable[10] = typeof(global::FastBoard.MainWindow);
+            _typeTable[11] = typeof(global::Microsoft.UI.Xaml.Window);
+            _typeTable[12] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
+            _typeTable[13] = typeof(global::Microsoft.UI.Xaml.DependencyObject);
+            _typeTable[14] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
+            _typeTable[15] = typeof(global::System.Int32);
         }
 
         private int LookupTypeIndexByName(string typeName)
@@ -277,9 +293,11 @@ namespace App.App_XamlTypeInfo
             return -1;
         }
 
-        private object Activate_0_MainWindow() { return new global::FastBoard.MainWindow(); }
-        private object Activate_2_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
-        private void VectorAdd_4_IList(object instance, object item)
+        private object Activate_0_SKXamlCanvas() { return new global::SkiaSharp.Views.Windows.SKXamlCanvas(); }
+        private object Activate_8_CourtView() { return new global::FastBoard.Controls.CourtView(); }
+        private object Activate_10_MainWindow() { return new global::FastBoard.MainWindow(); }
+        private object Activate_12_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
+        private void VectorAdd_14_IList(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Microsoft.UI.Xaml.Controls.TreeViewNode>)instance;
             var newItem = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)item;
@@ -296,20 +314,72 @@ namespace App.App_XamlTypeInfo
             switch (typeIndex)
             {
 
-            case 0:   //  FastBoard.MainWindow
-                userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
-                userType.Activator = Activate_0_MainWindow;
+            case 0:   //  SkiaSharp.Views.Windows.SKXamlCanvas
+                userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Canvas"));
+                userType.Activator = Activate_0_SKXamlCanvas;
+                userType.AddMemberName("CanvasSize");
+                userType.AddMemberName("IgnorePixelScaling");
+                userType.AddMemberName("Dpi");
+                xamlType = userType;
+                break;
+
+            case 1:   //  Microsoft.UI.Xaml.Controls.Canvas
+                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 2:   //  Microsoft.UI.Xaml.Controls.Panel
+                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 3:   //  SkiaSharp.SKSize
+                userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 4:   //  System.ValueType
+                userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                xamlType = userType;
+                break;
+
+            case 5:   //  Object
+                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 6:   //  Boolean
+                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 7:   //  Double
+                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 8:   //  FastBoard.Controls.CourtView
+                userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.Activator = Activate_8_CourtView;
+                userType.AddMemberName("HalfCourt");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 1:   //  Microsoft.UI.Xaml.Window
+            case 9:   //  Microsoft.UI.Xaml.Controls.UserControl
                 xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 2:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
+            case 10:   //  FastBoard.MainWindow
+                userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Window"));
+                userType.Activator = Activate_10_MainWindow;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 11:   //  Microsoft.UI.Xaml.Window
+                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
+                break;
+
+            case 12:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
                 userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.Activator = Activate_2_TreeViewNode;
+                userType.Activator = Activate_12_TreeViewNode;
                 userType.AddMemberName("Children");
                 userType.AddMemberName("Content");
                 userType.AddMemberName("Depth");
@@ -321,26 +391,18 @@ namespace App.App_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 3:   //  Microsoft.UI.Xaml.DependencyObject
+            case 13:   //  Microsoft.UI.Xaml.DependencyObject
                 xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 4:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
+            case 14:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
                 userType = new global::App.App_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.CollectionAdd = VectorAdd_4_IList;
+                userType.CollectionAdd = VectorAdd_14_IList;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 5:   //  Object
-                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 6:   //  Int32
-                xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
-                break;
-
-            case 7:   //  Boolean
+            case 15:   //  Int32
                 xamlType = new global::App.App_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
             }
@@ -402,52 +464,82 @@ namespace App.App_XamlTypeInfo
             return foundXamlType;
         }
 
-        private object get_0_TreeViewNode_Children(object instance)
+        private object get_0_SKXamlCanvas_CanvasSize(object instance)
+        {
+            var that = (global::SkiaSharp.Views.Windows.SKXamlCanvas)instance;
+            return that.CanvasSize;
+        }
+        private object get_1_SKXamlCanvas_IgnorePixelScaling(object instance)
+        {
+            var that = (global::SkiaSharp.Views.Windows.SKXamlCanvas)instance;
+            return that.IgnorePixelScaling;
+        }
+        private void set_1_SKXamlCanvas_IgnorePixelScaling(object instance, object Value)
+        {
+            var that = (global::SkiaSharp.Views.Windows.SKXamlCanvas)instance;
+            that.IgnorePixelScaling = (global::System.Boolean)Value;
+        }
+        private object get_2_SKXamlCanvas_Dpi(object instance)
+        {
+            var that = (global::SkiaSharp.Views.Windows.SKXamlCanvas)instance;
+            return that.Dpi;
+        }
+        private object get_3_CourtView_HalfCourt(object instance)
+        {
+            var that = (global::FastBoard.Controls.CourtView)instance;
+            return that.HalfCourt;
+        }
+        private void set_3_CourtView_HalfCourt(object instance, object Value)
+        {
+            var that = (global::FastBoard.Controls.CourtView)instance;
+            that.HalfCourt = (global::System.Boolean)Value;
+        }
+        private object get_4_TreeViewNode_Children(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Children;
         }
-        private object get_1_TreeViewNode_Content(object instance)
+        private object get_5_TreeViewNode_Content(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Content;
         }
-        private void set_1_TreeViewNode_Content(object instance, object Value)
+        private void set_5_TreeViewNode_Content(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.Content = (global::System.Object)Value;
         }
-        private object get_2_TreeViewNode_Depth(object instance)
+        private object get_6_TreeViewNode_Depth(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Depth;
         }
-        private object get_3_TreeViewNode_HasChildren(object instance)
+        private object get_7_TreeViewNode_HasChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasChildren;
         }
-        private object get_4_TreeViewNode_HasUnrealizedChildren(object instance)
+        private object get_8_TreeViewNode_HasUnrealizedChildren(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.HasUnrealizedChildren;
         }
-        private void set_4_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
+        private void set_8_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.HasUnrealizedChildren = (global::System.Boolean)Value;
         }
-        private object get_5_TreeViewNode_IsExpanded(object instance)
+        private object get_9_TreeViewNode_IsExpanded(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.IsExpanded;
         }
-        private void set_5_TreeViewNode_IsExpanded(object instance, object Value)
+        private void set_9_TreeViewNode_IsExpanded(object instance, object Value)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             that.IsExpanded = (global::System.Boolean)Value;
         }
-        private object get_6_TreeViewNode_Parent(object instance)
+        private object get_10_TreeViewNode_Parent(object instance)
         {
             var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
             return that.Parent;
@@ -460,50 +552,75 @@ namespace App.App_XamlTypeInfo
 
             switch (longMemberName)
             {
+            case "SkiaSharp.Views.Windows.SKXamlCanvas.CanvasSize":
+                userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("SkiaSharp.Views.Windows.SKXamlCanvas");
+                xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "CanvasSize", "SkiaSharp.SKSize");
+                xamlMember.Getter = get_0_SKXamlCanvas_CanvasSize;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "SkiaSharp.Views.Windows.SKXamlCanvas.IgnorePixelScaling":
+                userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("SkiaSharp.Views.Windows.SKXamlCanvas");
+                xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "IgnorePixelScaling", "Boolean");
+                xamlMember.Getter = get_1_SKXamlCanvas_IgnorePixelScaling;
+                xamlMember.Setter = set_1_SKXamlCanvas_IgnorePixelScaling;
+                break;
+            case "SkiaSharp.Views.Windows.SKXamlCanvas.Dpi":
+                userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("SkiaSharp.Views.Windows.SKXamlCanvas");
+                xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "Dpi", "Double");
+                xamlMember.Getter = get_2_SKXamlCanvas_Dpi;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "FastBoard.Controls.CourtView.HalfCourt":
+                userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("FastBoard.Controls.CourtView");
+                xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "HalfCourt", "Boolean");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_3_CourtView_HalfCourt;
+                xamlMember.Setter = set_3_CourtView_HalfCourt;
+                break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Children":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "Children", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_0_TreeViewNode_Children;
+                xamlMember.Getter = get_4_TreeViewNode_Children;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Content":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "Content", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_1_TreeViewNode_Content;
-                xamlMember.Setter = set_1_TreeViewNode_Content;
+                xamlMember.Getter = get_5_TreeViewNode_Content;
+                xamlMember.Setter = set_5_TreeViewNode_Content;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Depth":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "Depth", "Int32");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_2_TreeViewNode_Depth;
+                xamlMember.Getter = get_6_TreeViewNode_Depth;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasChildren":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "HasChildren", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_3_TreeViewNode_HasChildren;
+                xamlMember.Getter = get_7_TreeViewNode_HasChildren;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasUnrealizedChildren":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "HasUnrealizedChildren", "Boolean");
-                xamlMember.Getter = get_4_TreeViewNode_HasUnrealizedChildren;
-                xamlMember.Setter = set_4_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Getter = get_8_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Setter = set_8_TreeViewNode_HasUnrealizedChildren;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.IsExpanded":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_5_TreeViewNode_IsExpanded;
-                xamlMember.Setter = set_5_TreeViewNode_IsExpanded;
+                xamlMember.Getter = get_9_TreeViewNode_IsExpanded;
+                xamlMember.Setter = set_9_TreeViewNode_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Parent":
                 userType = (global::App.App_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::App.App_XamlTypeInfo.XamlMember(this, "Parent", "Microsoft.UI.Xaml.Controls.TreeViewNode");
-                xamlMember.Getter = get_6_TreeViewNode_Parent;
+                xamlMember.Getter = get_10_TreeViewNode_Parent;
                 xamlMember.SetIsReadOnly();
                 break;
             }

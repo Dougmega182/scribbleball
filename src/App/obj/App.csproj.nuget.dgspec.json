@@ -199,6 +199,10 @@
             "Microsoft.WindowsAppSDK": {
               "target": "Package",
               "version": "[1.5.241001000, )"
+            },
+            "SkiaSharp.Views.WinUI": {
+              "target": "Package",
+              "version": "[2.88.6, )"
             }
           },
           "imports": [

@@ -17,6 +17,9 @@
     <ProjectReference Include="..\App.Data\App.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="SkiaSharp.Views.WinUI" Version="2.88.6" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Assets\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
