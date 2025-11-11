@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("App.E2E")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+034f3f3b408ce0db076761128eee98471cefb8e9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e0038665eb0be92a1ff97b1431ee3b965716878")]
 [assembly: System.Reflection.AssemblyProductAttribute("App.E2E")]
 [assembly: System.Reflection.AssemblyTitleAttribute("App.E2E")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

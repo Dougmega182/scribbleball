@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Linq;
 using FastBoard.Core.Models;
 using FastBoard.Core.Tools;
 
@@ -80,38 +81,56 @@ public static class BoardStateSerializer
                     list.Add(new Token{
                         Name = (string?)o["name"] ?? "",
                         ImagePath = (string?)o["imagePath"],
-                        Position = new Vector2((float?)o["x"] ?? 0f, (float?)o["y"] ?? 0f),
-                        Rotation = (float?)o["rot"] ?? 0f,
-                        Scale = (float?)o["scale"] ?? 1f
+                        Position = new Vector2(GetF(o["x"]), GetF(o["y"])),
+                        Rotation = GetF(o["rot"],0f),
+                        Scale = GetF(o["scale"],1f)
                     });
                     break;
                 case "arrow":
                     list.Add(new ArrowShape{
-                        Start = new Vector2((float?)o["x1"] ?? 0f, (float?)o["y1"] ?? 0f),
-                        End = new Vector2((float?)o["x2"] ?? 0f, (float?)o["y2"] ?? 0f),
-                        Thickness = (float?)o["th"] ?? 3f
+                        Start = new Vector2(GetF(o["x1"]), GetF(o["y1"])),
+                        End = new Vector2(GetF(o["x2"]), GetF(o["y2"])),
+                        Thickness = GetF(o["th"],3f)
                     });
                     break;
                 case "dribble":
-                    var pts = o["pts"]?.AsArray()?.Select(n => (float)n!.GetValue<double>()).ToArray() ?? Array.Empty<float>();
+                    var ptsArr = o["pts"]?.AsArray();
                     var dpts = new List<Vector2>();
-                    for (int i=0;i+1<pts.Length;i+=2) dpts.Add(new Vector2(pts[i], pts[i+1]));
-                    list.Add(new DashedShape{ Points=dpts, Thickness=(float?)o["th"] ?? 3f, Dash=(float?)o["dash"] ?? 6f, Gap=(float?)o["gap"] ?? 6f });
+                    if (ptsArr != null)
+                    {
+                        var tmp = ptsArr.Select(n => (float)n!.GetValue<double>()).ToArray();
+                        for (int i=0; i+1<tmp.Length; i+=2) dpts.Add(new Vector2(tmp[i], tmp[i+1]));
+                    }
+                    list.Add(new DashedShape{ Points=dpts, Thickness=GetF(o["th"],3f), Dash=GetF(o["dash"],6f), Gap=GetF(o["gap"],6f) });
                     break;
                 case "curve":
-                    Vector2 V(JsonArray a) => new((float)a[0]!.GetValue<double>(), (float)a[1]!.GetValue<double>());
-                    list.Add(new CurveShape{ P0 = V(o["p0"]!.AsArray()), P1 = V(o["p1"]!.AsArray()), P2 = V(o["p2"]!.AsArray()), Thickness=(float?)o["th"] ?? 3f });
+                    list.Add(new CurveShape{ P0 = ParseVec(o["p0"]!.AsArray()), P1 = ParseVec(o["p1"]!.AsArray()), P2 = ParseVec(o["p2"]!.AsArray()), Thickness=GetF(o["th"],3f) });
                     break;
                 case "screen":
-                    Vector2 V2(JsonArray a) => new((float)a[0]!.GetValue<double>(), (float)a[1]!.GetValue<double>());
-                    list.Add(new ScreenShape{ Center=V2(o["c"]!.AsArray()), Size=V2(o["sz"]!.AsArray()), CornerRadius=(float?)o["cr"] ?? 0f, Rotation=(float?)o["rot"] ?? 0f, Thickness=(float?)o["th"] ?? 3f });
+                    list.Add(new ScreenShape{ Center=ParseVec(o["c"]!.AsArray()), Size=ParseVec(o["sz"]!.AsArray()), CornerRadius=GetF(o["cr"],0f), Rotation=GetF(o["rot"],0f), Thickness=GetF(o["th"],3f) });
                     break;
                 case "shotarc":
-                    Vector2 V3(JsonArray a) => new((float)a[0]!.GetValue<double>(), (float)a[1]!.GetValue<double>());
-                    list.Add(new ShotArcShape{ Center=V3(o["c"]!.AsArray()), Radius=(float?)o["r"] ?? 20f, StartAngleDeg=(float?)o["a"] ?? 0f, SweepDeg=(float?)o["sweep"] ?? 90f, Thickness=(float?)o["th"] ?? 3f });
+                    list.Add(new ShotArcShape{ Center=ParseVec(o["c"]!.AsArray()), Radius=GetF(o["r"],20f), StartAngleDeg=GetF(o["a"],0f), SweepDeg=GetF(o["sweep"],90f), Thickness=GetF(o["th"],3f) });
                     break;
             }
         }
         return list;
+    }
+
+    private static JsonArray BuildPointsArray(List<Vector2> pts)
+    {
+        var arr = new JsonArray();
+        foreach (var p in pts) { arr.Add((double)p.X); arr.Add((double)p.Y); }
+        return arr;
+    }
+
+    private static float GetF(JsonNode? n, float def = 0f)
+    {
+        return n is null ? def : (float)n.GetValue<double>();
+    }
+
+    private static Vector2 ParseVec(JsonArray a)
+    {
+        return new Vector2((float)a[0]!.GetValue<double>(), (float)a[1]!.GetValue<double>());
     }
 }
