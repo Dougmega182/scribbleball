@@ -11,6 +11,7 @@ namespace FastBoard.Controls;
 
 public sealed partial class CourtView : UserControl
 {
+    public float AnimationT { get; set; } = 0f;
     private readonly List<List<(SKPoint pt, float pressure)>> _strokes = new();
     private List<(SKPoint pt, float pressure)>? _current;
 
@@ -108,7 +109,7 @@ public sealed partial class CourtView : UserControl
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm)
         {
             var shapes = vm.CurrentFrameIndex >= 0 && vm.CurrentFrameIndex < vm.Frames.Count - 1
-                ? vm.GetFrameShapes(Math.Min(1f,_t))
+                ? vm.GetFrameShapes(Math.Min(1f, AnimationT))
                 : vm.Shapes;
             foreach (var shape in shapes)
             {

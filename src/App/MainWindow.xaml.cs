@@ -76,6 +76,8 @@ namespace FastBoard
         private void OnPause(object sender, RoutedEventArgs e)
         {
             _playTimer?.Stop();
+            _t = 0f;
+            Court.AnimationT = 0f;
         }
 
         private void OnNext(object sender, RoutedEventArgs e)
@@ -103,6 +105,7 @@ namespace FastBoard
                 else
                     _playTimer?.Stop();
             }
+            Court.AnimationT = _t;
             Court.InvalidateArrange();
         }
 
