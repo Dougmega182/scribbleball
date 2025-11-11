@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="4ceaa14b-aa9d-454c-b032-7a5de99805d0" name="dalep@DESKTOP-CKE82FJ 2025-11-11 14:55:44" runUser="DESKTOP-CKE82FJ\dalep" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-11-11T14:55:44.8785130+11:00" queuing="2025-11-11T14:55:44.8785131+11:00" start="2025-11-11T14:55:42.9254494+11:00" finish="2025-11-11T14:55:44.8828633+11:00" />
+  <TestSettings name="default" id="af6429c9-5ad7-4424-bd02-a5ad71b8ed8d">
+    <Deployment runDeploymentRoot="dalep_DESKTOP-CKE82FJ_2025-11-11_14_55_44" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="2ef8400d-6041-4b7a-acd3-9a832e97f2a3" testId="1d7f5124-1cd0-1ee5-52d8-4ada67d6aef4" testName="App.Tests.GeometryTests.Distance_Works(x1: -3, y1: -4, x2: 0, y2: 0, expected: 5)" computerName="DESKTOP-CKE82FJ" duration="00:00:00.1297110" startTime="2025-11-11T14:55:44.8055902+11:00" endTime="2025-11-11T14:55:44.8055904+11:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2ef8400d-6041-4b7a-acd3-9a832e97f2a3" />
+    <UnitTestResult executionId="500c48cb-65eb-4af3-9055-2d289266fe41" testId="24fb8324-d314-efa6-262d-c232eec0f928" testName="App.Tests.GeometryTests.Distance_Works(x1: 0, y1: 0, x2: 10, y2: 0, expected: 10)" computerName="DESKTOP-CKE82FJ" duration="00:00:00.0000049" startTime="2025-11-11T14:55:44.8059215+11:00" endTime="2025-11-11T14:55:44.8059215+11:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="500c48cb-65eb-4af3-9055-2d289266fe41" />
+    <UnitTestResult executionId="ebab0eee-86fd-409b-80f0-fe2c26c6bd28" testId="bd0cad30-73f4-2adf-34cb-25dddcad8b82" testName="App.Tests.GeometryTests.Distance_Works(x1: 0, y1: 0, x2: 0, y2: 10, expected: 10)" computerName="DESKTOP-CKE82FJ" duration="00:00:00.0002283" startTime="2025-11-11T14:55:44.8058999+11:00" endTime="2025-11-11T14:55:44.8059000+11:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ebab0eee-86fd-409b-80f0-fe2c26c6bd28" />
+    <UnitTestResult executionId="2c5b6cf7-bef1-416d-bb83-17330d3e3956" testId="5def5de9-552a-833f-a444-db7a63d22313" testName="App.Tests.UnitTest1.Test1" computerName="DESKTOP-CKE82FJ" duration="00:00:00.0013302" startTime="2025-11-11T14:55:44.6792131+11:00" endTime="2025-11-11T14:55:44.6792295+11:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2c5b6cf7-bef1-416d-bb83-17330d3e3956" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="App.Tests.UnitTest1.Test1" storage="e:\ai\work-in-progress\basketball app\tests\app.tests\bin\release\net8.0\app.tests.dll" id="5def5de9-552a-833f-a444-db7a63d22313">
+      <Execution id="2c5b6cf7-bef1-416d-bb83-17330d3e3956" />
+      <TestMethod codeBase="E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\App.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="App.Tests.UnitTest1" name="Test1" />
+    </UnitTest>
+    <UnitTest name="App.Tests.GeometryTests.Distance_Works(x1: -3, y1: -4, x2: 0, y2: 0, expected: 5)" storage="e:\ai\work-in-progress\basketball app\tests\app.tests\bin\release\net8.0\app.tests.dll" id="1d7f5124-1cd0-1ee5-52d8-4ada67d6aef4">
+      <Execution id="2ef8400d-6041-4b7a-acd3-9a832e97f2a3" />
+      <TestMethod codeBase="E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\App.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="App.Tests.GeometryTests" name="Distance_Works" />
+    </UnitTest>
+    <UnitTest name="App.Tests.GeometryTests.Distance_Works(x1: 0, y1: 0, x2: 10, y2: 0, expected: 10)" storage="e:\ai\work-in-progress\basketball app\tests\app.tests\bin\release\net8.0\app.tests.dll" id="24fb8324-d314-efa6-262d-c232eec0f928">
+      <Execution id="500c48cb-65eb-4af3-9055-2d289266fe41" />
+      <TestMethod codeBase="E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\App.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="App.Tests.GeometryTests" name="Distance_Works" />
+    </UnitTest>
+    <UnitTest name="App.Tests.GeometryTests.Distance_Works(x1: 0, y1: 0, x2: 0, y2: 10, expected: 10)" storage="e:\ai\work-in-progress\basketball app\tests\app.tests\bin\release\net8.0\app.tests.dll" id="bd0cad30-73f4-2adf-34cb-25dddcad8b82">
+      <Execution id="ebab0eee-86fd-409b-80f0-fe2c26c6bd28" />
+      <TestMethod codeBase="E:\Ai\WORK-IN-PROGRESS\basketball app\tests\App.Tests\bin\Release\net8.0\App.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="App.Tests.GeometryTests" name="Distance_Works" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="1d7f5124-1cd0-1ee5-52d8-4ada67d6aef4" executionId="2ef8400d-6041-4b7a-acd3-9a832e97f2a3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="24fb8324-d314-efa6-262d-c232eec0f928" executionId="500c48cb-65eb-4af3-9055-2d289266fe41" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd0cad30-73f4-2adf-34cb-25dddcad8b82" executionId="ebab0eee-86fd-409b-80f0-fe2c26c6bd28" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5def5de9-552a-833f-a444-db7a63d22313" executionId="2c5b6cf7-bef1-416d-bb83-17330d3e3956" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="4" executed="4" passed="4" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.21)&#xD;
+[xUnit.net 00:00:00.43]   Discovering: App.Tests&#xD;
+[xUnit.net 00:00:00.48]   Discovered:  App.Tests&#xD;
+[xUnit.net 00:00:00.49]   Starting:    App.Tests&#xD;
+[xUnit.net 00:00:00.65]   Finished:    App.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
