@@ -37,9 +37,8 @@ public sealed partial class CourtView : UserControl
         }
     }
 
-    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+    private void DrawBoard(SKCanvas canvas, SKImageInfo info)
     {
-        var canvas = e.Surface.Canvas;
         canvas.Clear(new SKColor(34, 139, 34)); // ForestGreen background
 
         // Determine DPI scale
@@ -57,8 +56,8 @@ public sealed partial class CourtView : UserControl
 
         // Compute target court size to fit within control
         var (courtW, courtL) = CourtGeometry.GetCourtSizePx(HalfCourt, dpi, scale);
-        float availW = (float)e.Info.Width;
-        float availH = (float)e.Info.Height;
+        float availW = (float)info.Width;
+        float availH = (float)info.Height;
         float scaleFactor = Math.Min(availW / (float)courtW, availH / (float)courtL);
         float ox = (availW - (float)courtW * scaleFactor) / 2f;
         float oy = (availH - (float)courtL * scaleFactor) / 2f;
@@ -155,6 +154,11 @@ public sealed partial class CourtView : UserControl
                 canvas.DrawLine(a.pt, b.pt, sp);
             }
         }
+    }
+
+    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+    {
+        DrawBoard(e.Surface.Canvas, e.Info);
     }
 
     private void OnPointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -291,8 +295,7 @@ public sealed partial class CourtView : UserControl
         try
         {
             using var surface = SKSurface.Create(new SKImageInfo(width, height));
-            var args = new SKPaintSurfaceEventArgs(surface, null!, new SKImageInfo(width,height));
-            OnPaintSurface(this, args);
+            DrawBoard(surface.Canvas, new SKImageInfo(width,height));
             using var image = surface.Snapshot();
             using var data = image.Encode(SKEncodedImageFormat.Png, 90);
             using var fs = File.OpenWrite(path);
