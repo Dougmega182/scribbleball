@@ -1,0 +1,1 @@
+﻿Installer creation requires WiX/NSIS. If installed, adapt this script to create an installer from src/App/bin/x86/Release/net8.0-windows10.0.19041.0.
