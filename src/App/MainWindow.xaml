@@ -30,6 +30,11 @@
             <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
             <AppBarButton Icon="Video" Label="Export Frames" Click="OnExportFrames"/>
+            <AppBarButton Icon="Play" Label="Play" Click="OnPlay"/>
+            <AppBarButton Icon="Pause" Label="Pause" Click="OnPause"/>
+            <AppBarButton Icon="Back" Label="Prev" Click="OnPrev"/>
+            <AppBarButton Icon="Forward" Label="Next" Click="OnNext"/>
+            <AppBarButton Icon="Upload" Label="Capture Frame" Click="OnCaptureFrame"/>
             <AppBarButton Icon="ZoomIn" Label="Zoom In" Click="OnZoomIn"/>
             <AppBarButton Icon="ZoomOut" Label="Zoom Out" Click="OnZoomOut"/>
             <AppBarButton Icon="Refresh" Label="Reset View" Click="OnZoomReset"/>

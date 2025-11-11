@@ -59,9 +59,60 @@ namespace FastBoard
             Court.InvalidateArrange();
         }
 
+        private void OnCaptureFrame(object sender, RoutedEventArgs e)
+        {
+            _vm.CaptureFrame();
+        }
+
+        private void OnPlay(object sender, RoutedEventArgs e)
+        {
+            _playTimer ??= new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _playTimer.Tick += OnPlayTick;
+            _lastTick = DateTime.UtcNow;
+            _t = 0f;
+            _playTimer.Start();
+        }
+
+        private void OnPause(object sender, RoutedEventArgs e)
+        {
+            _playTimer?.Stop();
+        }
+
+        private void OnNext(object sender, RoutedEventArgs e)
+        {
+            if (_vm.Frames.Count > 0 && _vm.CurrentFrameIndex < _vm.Frames.Count - 1)
+                _vm.CurrentFrameIndex++;
+        }
+
+        private void OnPrev(object sender, RoutedEventArgs e)
+        {
+            if (_vm.CurrentFrameIndex > 0) _vm.CurrentFrameIndex--;
+        }
+
+        private void OnPlayTick(object? sender, object e)
+        {
+            var now = DateTime.UtcNow;
+            var dt = (float)(now - _lastTick).TotalSeconds;
+            _lastTick = now;
+            _t += dt; // seconds
+            if (_t >= 1f)
+            {
+                _t = 0f;
+                if (_vm.CurrentFrameIndex < _vm.Frames.Count - 2)
+                    _vm.CurrentFrameIndex++;
+                else
+                    _playTimer?.Stop();
+            }
+            Court.InvalidateArrange();
+        }
+
         private void OnZoomIn(object sender, RoutedEventArgs e) => Court.ZoomIn();
         private void OnZoomOut(object sender, RoutedEventArgs e) => Court.ZoomOut();
         private void OnZoomReset(object sender, RoutedEventArgs e) => Court.ZoomReset();
+
+        private DispatcherTimer? _playTimer;
+        private DateTime _lastTick;
+        private float _t;
 
         private void OnExportFrames(object sender, RoutedEventArgs e)
         {

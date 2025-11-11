@@ -107,7 +107,10 @@ public sealed partial class CourtView : UserControl
         // Draw shapes from VM
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm)
         {
-            foreach (var shape in vm.Shapes)
+            var shapes = vm.CurrentFrameIndex >= 0 && vm.CurrentFrameIndex < vm.Frames.Count - 1
+                ? vm.GetFrameShapes(Math.Min(1f,_t))
+                : vm.Shapes;
+            foreach (var shape in shapes)
             {
                 switch (shape)
                 {
