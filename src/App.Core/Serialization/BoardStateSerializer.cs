@@ -32,7 +32,7 @@ public static class BoardStateSerializer
                 },
                 DashedShape d => new JsonObject{
                     ["type"] = "dribble",
-                    ["pts"] = new JsonArray(d.Points.SelectMany(p=> new[]{ (double)p.X, (double)p.Y }).ToArray()),
+                    ["pts"] = BuildPointsArray(d.Points),
                     ["th"] = d.Thickness, ["dash"] = d.Dash, ["gap"] = d.Gap
                 },
                 CurveShape c => new JsonObject{
