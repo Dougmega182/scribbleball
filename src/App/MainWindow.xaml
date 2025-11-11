@@ -15,13 +15,15 @@
         </Grid.RowDefinitions>
         <CommandBar>
             <AppBarButton Icon="Add" Label="New" />
+            <AppBarToggleButton Icon="Forward" Label="Arrow" Tag="Arrow" Checked="OnToolToggle" />
+            <AppBarToggleButton Icon="Shuffle" Label="Dribble" Tag="Dribble" Checked="OnToolToggle" />
             <AppBarButton Icon="Save" Label="Save" Click="OnSavePlaybook"/>
             <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
             <AppBarButton Icon="Video" Label="Export Frames" Click="OnExportFrames"/>
         </CommandBar>
         <Grid Grid.Row="1">
-            <controls:CourtView HalfCourt="True"/>
+            <controls:CourtView HalfCourt="True" x:Name="Court"/>
         </Grid>
     </Grid>
 </Window>

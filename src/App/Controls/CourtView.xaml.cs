@@ -14,6 +14,7 @@ public sealed partial class CourtView : UserControl
     public CourtView()
     {
         this.InitializeComponent();
+        this.Loaded += (_,__) => Canvas.Invalidate();
     }
 
     public bool HalfCourt
@@ -101,6 +102,23 @@ public sealed partial class CourtView : UserControl
         canvas.DrawLine(leftCornerX, hoopY + 12, leftCornerX, hoopY + 200, paint);
         canvas.DrawLine(rightCornerX, hoopY + 12, rightCornerX, hoopY + 200, paint);
 
+        // Draw shapes from VM
+        if (DataContext is FastBoard.ViewModels.BoardViewModel vm)
+        {
+            foreach (var shape in vm.Shapes)
+            {
+                switch (shape)
+                {
+                    case FastBoard.Core.Models.ArrowShape a:
+                        DrawArrow(canvas, a);
+                        break;
+                    case FastBoard.Core.Models.DashedShape d:
+                        DrawDashed(canvas, d);
+                        break;
+                }
+            }
+        }
+
         // Draw strokes (ink)
         foreach (var stroke in _strokes)
         {
@@ -131,29 +149,65 @@ public sealed partial class CourtView : UserControl
         var pt = e.GetCurrentPoint(Canvas);
         float pressure = (float)pt.Properties.Pressure;
         var p = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
-        _current = new List<(SKPoint pt, float pressure)> { (p, pressure) };
+        if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
+        {
+            tool.Begin(new System.Numerics.Vector2(p.X, p.Y), pressure);
+        }
+        else
+        {
+            _current = new List<(SKPoint pt, float pressure)> { (p, pressure) };
+        }
         Canvas.CapturePointer(e.Pointer);
         Canvas.Invalidate();
     }
 
     private void OnPointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
-        if (_current == null) return;
         var pt = e.GetCurrentPoint(Canvas);
         var p = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
         float pressure = (float)pt.Properties.Pressure;
-        _current.Add((p, pressure));
+        if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
+        {
+            tool.Move(new System.Numerics.Vector2(p.X, p.Y), pressure);
+        }
+        else if (_current != null)
+        {
+            _current.Add((p, pressure));
+        }
         Canvas.Invalidate();
     }
 
     private void OnPointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
-        if (_current != null)
+        if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
+        {
+            tool.End(new System.Numerics.Vector2(p.X, p.Y), pressure);
+        }
+        else if (_current != null)
         {
             _strokes.Add(_current);
             _current = null;
-            Canvas.ReleasePointerCapture(e.Pointer);
         }
+        Canvas.ReleasePointerCapture(e.Pointer);
         Canvas.Invalidate();
+        void DrawArrow(SKCanvas canvas, FastBoard.Core.Models.ArrowShape a)
+        {
+            using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=a.Thickness, IsAntialias=true, StrokeCap=SKStrokeCap.Round };
+            canvas.DrawLine(new SKPoint(a.Start.X, a.Start.Y), new SKPoint(a.End.X, a.End.Y), p);
+            var (h1,h2) = FastBoard.Core.Geometry.GeometryUtils.ArrowHead(new System.Numerics.Vector2(a.Start.X,a.Start.Y), new System.Numerics.Vector2(a.End.X,a.End.Y), a.HeadLength, a.HeadAngleDeg);
+            using var p2 = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=a.Thickness, IsAntialias=true, StrokeCap=SKStrokeCap.Round };
+            canvas.DrawLine(new SKPoint(h1.X, h1.Y), new SKPoint(a.End.X, a.End.Y), p2);
+            canvas.DrawLine(new SKPoint(h2.X, h2.Y), new SKPoint(a.End.X, a.End.Y), p2);
+        }
+
+        void DrawDashed(SKCanvas canvas, FastBoard.Core.Models.DashedShape d)
+        {
+            if (d.Points.Count < 2) return;
+            using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=d.Thickness, IsAntialias=true, PathEffect = SKPathEffect.CreateDash(new float[]{d.Dash, d.Gap}, 0)};
+            var path = new SKPath();
+            path.MoveTo(d.Points[0].X, d.Points[0].Y);
+            for (int i=1;i<d.Points.Count;i++) path.LineTo(d.Points[i].X, d.Points[i].Y);
+            canvas.DrawPath(path, p);
+        }
     }
 }

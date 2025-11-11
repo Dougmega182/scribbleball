@@ -14,9 +14,11 @@ namespace FastBoard
 {
     public sealed partial class MainWindow : Window
     {
+        private readonly ViewModels.BoardViewModel _vm = new();
         public MainWindow()
         {
             this.InitializeComponent();
+            Court.DataContext = _vm;
         }
 
         private void OnSavePlaybook(object sender, RoutedEventArgs e)
@@ -91,6 +93,20 @@ namespace FastBoard
                     using var fs = File.OpenWrite(IOPath.Combine(framesDir,$"frame-{i:0000}.png"));
                     data.SaveTo(fs);
                 }
+            }
+        }
+
+        private void OnToolToggle(object sender, RoutedEventArgs e)
+        {
+            if (sender is AppBarToggleButton t)
+            {
+                var tag = t.Tag as string;
+                _vm.ActiveTool = tag switch
+                {
+                    "Arrow" => Core.Tools.ToolType.Arrow,
+                    "Dribble" => Core.Tools.ToolType.Dribble,
+                    _ => Core.Tools.ToolType.None
+                };
             }
         }
 
