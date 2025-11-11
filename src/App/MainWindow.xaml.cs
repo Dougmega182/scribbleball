@@ -2,6 +2,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Shapes;
+using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 using FastBoard.Core.Serialization;
 using System.IO;
@@ -22,12 +23,12 @@ namespace FastBoard
             var pb = new Core.Models.Playbook { Name = "QuickSave" };
             var json = PlaybookSerializer.ToJson(pb);
             Directory.CreateDirectory("dist");
-            File.WriteAllText(Path.Combine("dist","playbook.json"), json);
+            File.WriteAllText(System.IO.Path.Combine("dist","playbook.json"), json);
         }
 
         private void OnOpenPlaybook(object sender, RoutedEventArgs e)
         {
-            var path = Path.Combine("dist","playbook.json");
+            var path = System.IO.Path.Combine("dist","playbook.json");
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
@@ -58,7 +59,7 @@ namespace FastBoard
                 Directory.CreateDirectory("dist");
                 using var snapshot = surface.Snapshot();
                 using var data = snapshot.Encode(SKEncodedImageFormat.Png, 90);
-                using var fs = File.OpenWrite(Path.Combine("dist","export.png"));
+                using var fs = File.OpenWrite(System.IO.Path.Combine("dist","export.png"));
                 data.SaveTo(fs);
             }
         }
@@ -72,7 +73,7 @@ namespace FastBoard
             {
                 var width = (int)Math.Max(1, sk.ActualWidth);
                 var height = (int)Math.Max(1, sk.ActualHeight);
-                var framesDir = Path.Combine("dist","frames");
+                var framesDir = System.IO.Path.Combine("dist","frames");
                 Directory.CreateDirectory(framesDir);
                 for (int i=0; i<8; i++)
                 {
@@ -86,7 +87,7 @@ namespace FastBoard
                     canvas.Flush();
                     using var snapshot = surface.Snapshot();
                     using var data = snapshot.Encode(SKEncodedImageFormat.Png, 90);
-                    using var fs = File.OpenWrite(Path.Combine(framesDir,$"frame-{i:0000}.png"));
+                    using var fs = File.OpenWrite(System.IO.Path.Combine(framesDir,$"frame-{i:0000}.png"));
                     data.SaveTo(fs);
                 }
             }
