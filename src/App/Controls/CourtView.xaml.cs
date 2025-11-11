@@ -131,6 +131,9 @@ public sealed partial class CourtView : UserControl
                     case FastBoard.Core.Models.Token t:
                         DrawToken(canvas, t);
                         break;
+                    case FastBoard.Core.Tools.ShotArcShape sa:
+                        DrawShotArc(canvas, sa);
+                        break;
                 }
             }
         }

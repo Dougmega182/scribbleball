@@ -43,6 +43,7 @@ public partial class BoardViewModel : ObservableObject
     private CurveTool? curve;
     private ScreenTool? screen;
     private EraserTool? eraser;
+    private ShotArcTool? shot;
 
     public IDrawingTool? GetActiveDrawingTool()
     {
@@ -54,6 +55,7 @@ public partial class BoardViewModel : ObservableObject
             ToolType.Curve => curve ??= new CurveTool(Shapes),
             ToolType.Screen => screen ??= new ScreenTool(Shapes),
             ToolType.Eraser => eraser ??= new EraserTool(Shapes),
+            ToolType.ShotArc => shot ??= new ShotArcTool(Shapes),
             _ => null
         };
     }

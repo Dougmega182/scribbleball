@@ -26,18 +26,19 @@
             <AppBarToggleButton x:ConnectionId='8' Icon="Edit" Label="Curve" Tag="Curve"                        />
             <AppBarToggleButton x:ConnectionId='9' Icon="Rotate" Label="Screen" Tag="Screen"                        />
             <AppBarToggleButton x:ConnectionId='10' Icon="Erase" Label="Eraser" Tag="Eraser"                        />
-            <AppBarButton x:ConnectionId='11' Icon="Save" Label="Save"                       />
-            <AppBarButton x:ConnectionId='12' Icon="OpenFile" Label="Open"                       />
-            <AppBarButton x:ConnectionId='13' Icon="Upload" Label="Export PNG"                    />
-            <AppBarButton x:ConnectionId='14' Icon="Video" Label="Export Frames"                       />
-            <AppBarButton x:ConnectionId='15' Icon="Play" Label="Play"               />
-            <AppBarButton x:ConnectionId='16' Icon="Pause" Label="Pause"                />
-            <AppBarButton x:ConnectionId='17' Icon="Back" Label="Prev"               />
-            <AppBarButton x:ConnectionId='18' Icon="Forward" Label="Next"               />
-            <AppBarButton x:ConnectionId='19' Icon="Upload" Label="Capture Frame"                       />
-            <AppBarButton x:ConnectionId='20' Icon="ZoomIn" Label="Zoom In"                 />
-            <AppBarButton x:ConnectionId='21' Icon="ZoomOut" Label="Zoom Out"                  />
-            <AppBarButton x:ConnectionId='22' Icon="Refresh" Label="Reset View"                    />
+            <AppBarToggleButton x:ConnectionId='11' Icon="EditMirroring" Label="Shot Arc" Tag="ShotArc"                        />
+            <AppBarButton x:ConnectionId='12' Icon="Save" Label="Save"                       />
+            <AppBarButton x:ConnectionId='13' Icon="OpenFile" Label="Open"                       />
+            <AppBarButton x:ConnectionId='14' Icon="Upload" Label="Export PNG"                    />
+            <AppBarButton x:ConnectionId='15' Icon="Video" Label="Export Frames"                       />
+            <AppBarButton x:ConnectionId='16' Icon="Play" Label="Play"               />
+            <AppBarButton x:ConnectionId='17' Icon="Pause" Label="Pause"                />
+            <AppBarButton x:ConnectionId='18' Icon="Back" Label="Prev"               />
+            <AppBarButton x:ConnectionId='19' Icon="Forward" Label="Next"               />
+            <AppBarButton x:ConnectionId='20' Icon="Upload" Label="Capture Frame"                       />
+            <AppBarButton x:ConnectionId='21' Icon="ZoomIn" Label="Zoom In"                 />
+            <AppBarButton x:ConnectionId='22' Icon="ZoomOut" Label="Zoom Out"                  />
+            <AppBarButton x:ConnectionId='23' Icon="Refresh" Label="Reset View"                    />
         </CommandBar>
         <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8">
             <TextBlock Text="Palette" Margin="8,0,0,0"/>

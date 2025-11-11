@@ -26,6 +26,7 @@
             <AppBarToggleButton Icon="Edit" Label="Curve" Tag="Curve" Checked="OnToolToggle" />
             <AppBarToggleButton Icon="Rotate" Label="Screen" Tag="Screen" Checked="OnToolToggle" />
             <AppBarToggleButton Icon="Erase" Label="Eraser" Tag="Eraser" Checked="OnToolToggle" />
+            <AppBarToggleButton Icon="EditMirroring" Label="Shot Arc" Tag="ShotArc" Checked="OnToolToggle" />
             <AppBarButton Icon="Save" Label="Save" Click="OnSavePlaybook"/>
             <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>

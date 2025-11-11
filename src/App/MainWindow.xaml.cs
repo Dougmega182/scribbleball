@@ -23,20 +23,20 @@ namespace FastBoard
 
         private void OnSavePlaybook(object sender, RoutedEventArgs e)
         {
-            var pb = new Core.Models.Playbook { Name = "QuickSave" };
-            var json = PlaybookSerializer.ToJson(pb);
+            var json = Core.Serialization.BoardStateSerializer.ToJson(_vm.Shapes);
             Directory.CreateDirectory("dist");
-            File.WriteAllText(IOPath.Combine("dist","playbook.json"), json);
+            File.WriteAllText(IOPath.Combine("dist","board.json"), json);
         }
 
         private void OnOpenPlaybook(object sender, RoutedEventArgs e)
         {
-            var path = IOPath.Combine("dist","playbook.json");
+            var path = IOPath.Combine("dist","board.json");
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
-                var pb = PlaybookSerializer.FromJson(json);
-                // no-op: placeholder to validate
+                _vm.Shapes.Clear();
+                _vm.Shapes.AddRange(Core.Serialization.BoardStateSerializer.FromJson(json));
+                Court.InvalidateArrange();
             }
         }
 
