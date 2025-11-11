@@ -59,6 +59,10 @@ namespace FastBoard
             Court.InvalidateArrange();
         }
 
+        private void OnZoomIn(object sender, RoutedEventArgs e) => Court.ZoomIn();
+        private void OnZoomOut(object sender, RoutedEventArgs e) => Court.ZoomOut();
+        private void OnZoomReset(object sender, RoutedEventArgs e) => Court.ZoomReset();
+
         private void OnExportFrames(object sender, RoutedEventArgs e)
         {
             var court = FindDescendant<Controls.CourtView>(this.Content as FrameworkElement);

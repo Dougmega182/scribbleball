@@ -80,26 +80,26 @@ public sealed partial class CourtView : UserControl
         // Key / lane
         var laneWidth = (float)(CourtGeometry.FtToPx(CourtGeometry.LaneWidthFt, dpi, scale) * scaleFactor);
         float laneLeft = rect.MidX - laneWidth / 2f;
-        float ftFromBackboardPx = (float)(CourtGeometry.FtToPx(CourtGeometry.FreeThrowLineDistFt, dpi, scale) * s);
+        float ftFromBackboardPx = (float)(CourtGeometry.FtToPx(CourtGeometry.FreeThrowLineDistFt, dpi, scale) * scaleFactor);
         float laneTop = hoopY + 12 + 12;
         float ftY = laneTop + ftFromBackboardPx;
         canvas.DrawRect(laneLeft, laneTop, laneWidth, ftFromBackboardPx, paint);
-        var ftRadius = (float)(CourtGeometry.FtToPx(6, dpi, scale) * s);
+        var ftRadius = (float)(CourtGeometry.FtToPx(6, dpi, scale) * scaleFactor);
         var ftRect = new SKRect(rect.MidX - ftRadius, ftY - ftRadius, rect.MidX + ftRadius, ftY + ftRadius);
         canvas.DrawArc(ftRect, 0, 180, false, paint);
 
         // Restricted area arc around hoop
-        var restR = (float)(CourtGeometry.RestrictedArcRadiusPx(dpi, scale) * s);
+        var restR = (float)(CourtGeometry.RestrictedArcRadiusPx(dpi, scale) * scaleFactor);
         var restRect = new SKRect(hoopX - restR, hoopY - restR, hoopX + restR, hoopY + restR);
         canvas.DrawArc(restRect, 200, 140, false, paint);
 
         // Three-point arc centered on hoop with corner lines
-        var threeR = (float)(CourtGeometry.ThreePointArcRadiusPx(dpi, scale) * s);
+        var threeR = (float)(CourtGeometry.ThreePointArcRadiusPx(dpi, scale) * scaleFactor);
         var threeRect = new SKRect(hoopX - threeR, hoopY - threeR, hoopX + threeR, hoopY + threeR);
         canvas.DrawArc(threeRect, 210, 120, false, paint);
         // corner distance is slightly shorter; draw vertical corner lines until they meet arc
-        float cornerDistPx = (float)(CourtGeometry.FtToPx(CourtGeometry.CornerThreeDistFt, dpi, scale) * s);
-        float cornerXOffset = (float)(CourtGeometry.FtToPx((CourtGeometry.CourtWidthFt/2) - (CourtGeometry.CornerThreeDistFt), dpi, scale) * s);
+        float cornerDistPx = (float)(CourtGeometry.FtToPx(CourtGeometry.CornerThreeDistFt, dpi, scale) * scaleFactor);
+        float cornerXOffset = (float)(CourtGeometry.FtToPx((CourtGeometry.CourtWidthFt/2) - (CourtGeometry.CornerThreeDistFt), dpi, scale) * scaleFactor);
         float leftCornerX = rect.MidX - cornerXOffset;
         float rightCornerX = rect.MidX + cornerXOffset;
         canvas.DrawLine(leftCornerX, hoopY + 12, leftCornerX, hoopY + 200, paint);
