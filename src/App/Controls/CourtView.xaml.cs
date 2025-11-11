@@ -59,14 +59,14 @@ public sealed partial class CourtView : UserControl
         var (courtW, courtL) = CourtGeometry.GetCourtSizePx(HalfCourt, dpi, scale);
         float availW = (float)e.Info.Width;
         float availH = (float)e.Info.Height;
-        float s = Math.Min(availW / (float)courtW, availH / (float)courtL);
+        float scaleFactor = Math.Min(availW / (float)courtW, availH / (float)courtL);
         float ox = (availW - (float)courtW * s) / 2f;
         float oy = (availH - (float)courtL * s) / 2f;
 
         using var paint = new SKPaint { Color = SKColors.White, IsAntialias = true, StrokeWidth = 3, Style = SKPaintStyle.Stroke };
 
         // Outer boundary
-        var rect = new SKRect(ox, oy, ox + (float)courtW * s, oy + (float)courtL * s);
+        var rect = new SKRect(ox, oy, ox + (float)courtW * scaleFactor, oy + (float)courtL * s);
         canvas.DrawRect(rect, paint);
 
         // Hoop/backboard positions using feet distances
