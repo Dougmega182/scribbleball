@@ -4,6 +4,15 @@ namespace App.Tests;
 
 public class GeometryTests
 {
+    [Fact]
+    public void ArrowHead_Angles_AreReasonable()
+    {
+        var from = new System.Numerics.Vector2(0,0);
+        var to = new System.Numerics.Vector2(10,0);
+        var (p1,p2) = FastBoard.Core.Geometry.GeometryUtils.ArrowHead(from, to, 5, 30);
+        Assert.True(p1.X < 10 && p2.X < 10);
+    }
+
     [Theory]
     [InlineData(0, 0, 10, 0, 10)]
     [InlineData(0, 0, 0, 10, 10)]

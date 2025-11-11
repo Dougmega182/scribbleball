@@ -2,6 +2,8 @@ namespace FastBoard.Core.Geometry;
 
 public static class CourtGeometry
 {
+    public enum CourtMode { Half, Full }
+
     // Dimensions in feet for NBA half court; can scale.
     public const double CourtWidthFt = 50.0;   // sideline to sideline
     public const double CourtLengthFt = 94.0;  // baseline to baseline (full), half is 47
@@ -20,6 +22,14 @@ public static class CourtGeometry
     {
         var length = halfCourt ? CourtLengthFt / 2.0 : CourtLengthFt;
         return (FtToPx(CourtWidthFt, dpi, scale), FtToPx(length, dpi, scale));
+    }
+
+    public static float GetDpi(WindowingDisplayInfo? info)
+        => info?.Dpi ?? 96f;
+
+    public sealed class WindowingDisplayInfo
+    {
+        public float Dpi { get; init; } = 96f;
     }
 
     public static double ThreePointArcRadiusPx(double dpi, double scale)

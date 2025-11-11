@@ -36,7 +36,16 @@ public sealed partial class CourtView : UserControl
         canvas.Clear(new SKColor(34, 139, 34)); // ForestGreen background
 
         // Determine DPI scale
-        float dpi = 96f; // approx; WinUI provides DPI per display. For now, keep 96 and scale by control size
+        float dpi = 96f;
+        try
+        {
+            var xamlRoot = this.XamlRoot;
+            if (xamlRoot is not null)
+            {
+                dpi = (float)(xamlRoot.RasterizationScale * 96.0);
+            }
+        }
+        catch { dpi = 96f; }
         double scale = 1.0;
 
         // Compute target court size to fit within control
