@@ -281,5 +281,25 @@ public sealed partial class CourtView : UserControl
             canvas.DrawBitmap(bmp, dest);
         }
     }
+
+    public void ZoomIn() => Canvas.Invalidate();
+    public void ZoomOut() => Canvas.Invalidate();
+    public void ZoomReset() => Canvas.Invalidate();
+
+    public bool ExportPng(string path, int width, int height)
+    {
+        try
+        {
+            using var surface = SKSurface.Create(new SKImageInfo(width, height));
+            var args = new SKPaintSurfaceEventArgs(surface, null!, new SKImageInfo(width,height));
+            OnPaintSurface(this, args);
+            using var image = surface.Snapshot();
+            using var data = image.Encode(SKEncodedImageFormat.Png, 90);
+            using var fs = File.OpenWrite(path);
+            data.SaveTo(fs);
+            return true;
+        }
+        catch { return false; }
+    }
 }
 
