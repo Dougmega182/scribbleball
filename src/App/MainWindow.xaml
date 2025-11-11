@@ -15,8 +15,10 @@
         </Grid.RowDefinitions>
         <CommandBar>
             <AppBarButton Icon="Add" Label="New" />
-            <AppBarButton Icon="Save" Label="Save" />
-            <AppBarButton Icon="OpenFile" Label="Open" />
+            <AppBarButton Icon="Save" Label="Save" Click="OnSavePlaybook"/>
+            <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
+            <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
+            <AppBarButton Icon="Video" Label="Export Frames" Click="OnExportFrames"/>
         </CommandBar>
         <Grid Grid.Row="1">
             <controls:CourtView HalfCourt="True"/>
