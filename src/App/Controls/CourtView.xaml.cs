@@ -60,17 +60,17 @@ public sealed partial class CourtView : UserControl
         float availW = (float)e.Info.Width;
         float availH = (float)e.Info.Height;
         float scaleFactor = Math.Min(availW / (float)courtW, availH / (float)courtL);
-        float ox = (availW - (float)courtW * s) / 2f;
-        float oy = (availH - (float)courtL * s) / 2f;
+        float ox = (availW - (float)courtW * scaleFactor) / 2f;
+        float oy = (availH - (float)courtL * scaleFactor) / 2f;
 
         using var paint = new SKPaint { Color = SKColors.White, IsAntialias = true, StrokeWidth = 3, Style = SKPaintStyle.Stroke };
 
         // Outer boundary
-        var rect = new SKRect(ox, oy, ox + (float)courtW * scaleFactor, oy + (float)courtL * s);
+        var rect = new SKRect(ox, oy, ox + (float)courtW * scaleFactor, oy + (float)courtL * scaleFactor);
         canvas.DrawRect(rect, paint);
 
         // Hoop/backboard positions using feet distances
-        float basketToBaselinePx = (float)(CourtGeometry.FtToPx(CourtGeometry.BasketToBaselineFt, dpi, scale) * s);
+        float basketToBaselinePx = (float)(CourtGeometry.FtToPx(CourtGeometry.BasketToBaselineFt, dpi, scale) * scaleFactor);
         float hoopX = rect.MidX;
         float hoopY = rect.Top + basketToBaselinePx;
         canvas.DrawCircle(hoopX, hoopY, 9, paint);
@@ -78,7 +78,7 @@ public sealed partial class CourtView : UserControl
         canvas.DrawLine(hoopX - 30, hoopY + 12, hoopX + 30, hoopY + 12, paint);
 
         // Key / lane
-        var laneWidth = (float)(CourtGeometry.FtToPx(CourtGeometry.LaneWidthFt, dpi, scale) * s);
+        var laneWidth = (float)(CourtGeometry.FtToPx(CourtGeometry.LaneWidthFt, dpi, scale) * scaleFactor);
         float laneLeft = rect.MidX - laneWidth / 2f;
         float ftFromBackboardPx = (float)(CourtGeometry.FtToPx(CourtGeometry.FreeThrowLineDistFt, dpi, scale) * s);
         float laneTop = hoopY + 12 + 12;
