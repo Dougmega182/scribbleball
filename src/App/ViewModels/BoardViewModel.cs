@@ -11,6 +11,7 @@ public partial class BoardViewModel : ObservableObject
     public ToolType ActiveTool { get => activeTool; set => SetProperty(ref activeTool, value); }
     private ToolType activeTool = ToolType.None;
 
+    private SelectTool? select;
     private ArrowTool? arrow;
     private DribbleTool? dribble;
     private CurveTool? curve;
@@ -21,6 +22,7 @@ public partial class BoardViewModel : ObservableObject
     {
         return ActiveTool switch
         {
+            ToolType.Select => select ??= new SelectTool(Shapes),
             ToolType.Arrow => arrow ??= new ArrowTool(Shapes),
             ToolType.Dribble => dribble ??= new DribbleTool(Shapes),
             ToolType.Curve => curve ??= new CurveTool(Shapes),

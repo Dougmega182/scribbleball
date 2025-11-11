@@ -19,6 +19,8 @@
         </Grid.RowDefinitions>
         <CommandBar Grid.ColumnSpan="2">
             <AppBarButton Icon="Add" Label="New" />
+            <AppBarToggleButton Icon="SelectAll" Label="Select" Tag="Select" Checked="OnToolToggle" />
+            <AppBarButton Icon="Delete" Label="Delete" Click="OnDeleteSelected" />
             <AppBarToggleButton Icon="Forward" Label="Arrow" Tag="Arrow" Checked="OnToolToggle" />
             <AppBarToggleButton Icon="Shuffle" Label="Dribble" Tag="Dribble" Checked="OnToolToggle" />
             <AppBarToggleButton Icon="Edit" Label="Curve" Tag="Curve" Checked="OnToolToggle" />

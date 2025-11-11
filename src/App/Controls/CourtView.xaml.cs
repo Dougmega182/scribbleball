@@ -114,6 +114,7 @@ public sealed partial class CourtView : UserControl
                 {
                     case FastBoard.Core.Models.ArrowShape a:
                         DrawArrow(canvas, a);
+                        if (a.Selected) DrawSelection(canvas, new SKRect(Math.Min(a.Start.X,a.End.X)-8, Math.Min(a.Start.Y,a.End.Y)-8, Math.Max(a.Start.X,a.End.X)+8, Math.Max(a.Start.Y,a.End.Y)+8));
                         break;
                     case FastBoard.Core.Models.DashedShape d:
                         DrawDashed(canvas, d);

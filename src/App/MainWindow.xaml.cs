@@ -104,6 +104,12 @@ namespace FastBoard
             }
         }
 
+        private void OnDeleteSelected(object sender, RoutedEventArgs e)
+        {
+            for (int i=_vm.Shapes.Count-1;i>=0;i--) if (_vm.Shapes[i].Selected) _vm.Shapes.RemoveAt(i);
+            Court.InvalidateArrange();
+        }
+
         private void OnToolToggle(object sender, RoutedEventArgs e)
         {
             if (sender is AppBarToggleButton t)
