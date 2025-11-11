@@ -1,0 +1,30 @@
+﻿<Window
+    x:Class="FastBoard.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:FastBoard"
+    xmlns:controls="using:FastBoard.Controls"
+    mc:Ignorable="d"
+    Title="FastBoard">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <CommandBar>
+            <AppBarButton Icon="Add" Label="New" />
+            <AppBarToggleButton x:ConnectionId='3' Icon="Forward" Label="Arrow" Tag="Arrow"                        />
+            <AppBarToggleButton x:ConnectionId='4' Icon="Shuffle" Label="Dribble" Tag="Dribble"                        />
+            <AppBarButton x:ConnectionId='5' Icon="Save" Label="Save"                       />
+            <AppBarButton x:ConnectionId='6' Icon="OpenFile" Label="Open"                       />
+            <AppBarButton x:ConnectionId='7' Icon="Upload" Label="Export PNG"                    />
+            <AppBarButton x:ConnectionId='8' Icon="Video" Label="Export Frames"                       />
+        </CommandBar>
+        <Grid Grid.Row="1">
+            <controls:CourtView x:ConnectionId='2' HalfCourt="True" x:Name="Court"/>
+        </Grid>
+    </Grid>
+</Window>
+

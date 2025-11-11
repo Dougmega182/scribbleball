@@ -215,4 +215,3 @@ public sealed partial class CourtView : UserControl
         canvas.DrawPath(path, p);
     }
 }
-}
