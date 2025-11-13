@@ -15,6 +15,20 @@ public sealed partial class CourtView : UserControl
     private readonly List<List<(SKPoint pt, float pressure)>> _strokes = new();
     private List<(SKPoint pt, float pressure)>? _current;
 
+    // Camera (pan/zoom)
+    private float _zoom = 1f;
+    private SKPoint _pan = new SKPoint(0,0);
+    private bool _isPanning = false;
+    private SKPoint _lastPanPt;
+
+    // Touch pinch
+    private bool _isManipulating = false;
+    private float _startZoom;
+    private SKPoint _manipulationCenter; // screen-space
+
+    // Stylus eraser toggle
+    private FastBoard.Core.Tools.ToolType? _prevToolWhenEraser;
+
     public CourtView()
     {
         this.InitializeComponent();
@@ -63,7 +77,9 @@ public sealed partial class CourtView : UserControl
         float ox = (availW - (float)courtW * scaleFactor) / 2f;
         float oy = (availH - (float)courtL * scaleFactor) / 2f;
 
-        using var paint = new SKPaint { Color = SKColors.White, IsAntialias = true, StrokeWidth = 3, Style = SKPaintStyle.Stroke };
+        // Scale court line thickness to match real-world ~2 inch (0.1667 ft) lines, respecting DPI and view scale
+        float lineWidth = (float)(CourtGeometry.FtToPx(0.1667, dpi, scale) * scaleFactor);
+        using var paint = new SKPaint { Color = SKColors.White, IsAntialias = true, StrokeWidth = Math.Max(1f, lineWidth), Style = SKPaintStyle.Stroke };
 
         // Outer boundary
         var rect = new SKRect(ox, oy, ox + (float)courtW * scaleFactor, oy + (float)courtL * scaleFactor);
@@ -85,54 +101,150 @@ public sealed partial class CourtView : UserControl
         float ftY = laneTop + ftFromBackboardPx;
         canvas.DrawRect(laneLeft, laneTop, laneWidth, ftFromBackboardPx, paint);
         var ftRadius = (float)(CourtGeometry.FtToPx(6, dpi, scale) * scaleFactor);
-        var ftRect = new SKRect(rect.MidX - ftRadius, ftY - ftRadius, rect.MidX + ftRadius, ftY + ftRadius);
-        canvas.DrawArc(ftRect, 0, 180, false, paint);
+        // Full free-throw circle (near end) with dashed boundary option
+        using (var ftPaint = new SKPaint{ Color = paint.Color, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = paint.StrokeWidth, PathEffect = SKPathEffect.CreateDash(new float[]{12,8}, 0) })
+            canvas.DrawCircle(rect.MidX, ftY, ftRadius, ftPaint);
 
-        // Restricted area arc around hoop
+        // Center line and circle (for full court)
+        if (!HalfCourt)
+        {
+            // midcourt line
+            canvas.DrawLine(rect.Left, rect.MidY, rect.Right, rect.MidY, paint);
+            // center circle
+            var ccR = (float)(CourtGeometry.CenterCircleRadiusPx(dpi, scale) * scaleFactor);
+            var ccRect = new SKRect(rect.MidX - ccR, rect.MidY - ccR, rect.MidX + ccR, rect.MidY + ccR);
+            // Optional dashed center circle for visual fidelity
+            using (var dashed = new SKPaint{ Color = SKColors.White, IsAntialias=true, Style=SKPaintStyle.Stroke, StrokeWidth = paint.StrokeWidth, PathEffect = SKPathEffect.CreateDash(new float[]{12,8}, 0) })
+            {
+                canvas.DrawCircle(rect.MidX, rect.MidY, ccR, dashed);
+            }
+        }
+
+        // Restricted area arc around hoop (near end)
         var restR = (float)(CourtGeometry.RestrictedArcRadiusPx(dpi, scale) * scaleFactor);
         var restRect = new SKRect(hoopX - restR, hoopY - restR, hoopX + restR, hoopY + restR);
-        canvas.DrawArc(restRect, 200, 140, false, paint);
+        // Restricted area arc centered on hoop; near end opens toward baseline (downwards on screen)
+        canvas.DrawArc(restRect, 210, 120, false, paint);
 
-        // Three-point arc centered on hoop with corner lines
+        // Three-point arc centered on hoop with precise corner lines and arc clipping (near end)
         var threeR = (float)(CourtGeometry.ThreePointArcRadiusPx(dpi, scale) * scaleFactor);
         var threeRect = new SKRect(hoopX - threeR, hoopY - threeR, hoopX + threeR, hoopY + threeR);
-        canvas.DrawArc(threeRect, 210, 120, false, paint);
-        // corner distance is slightly shorter; draw vertical corner lines until they meet arc
-        float cornerDistPx = (float)(CourtGeometry.FtToPx(CourtGeometry.CornerThreeDistFt, dpi, scale) * scaleFactor);
-        float cornerXOffset = (float)(CourtGeometry.FtToPx((CourtGeometry.CourtWidthFt/2) - (CourtGeometry.CornerThreeDistFt), dpi, scale) * scaleFactor);
-        float leftCornerX = rect.MidX - cornerXOffset;
-        float rightCornerX = rect.MidX + cornerXOffset;
-        canvas.DrawLine(leftCornerX, hoopY + 12, leftCornerX, hoopY + 200, paint);
-        canvas.DrawLine(rightCornerX, hoopY + 12, rightCornerX, hoopY + 200, paint);
+
+        // Corner vertical lines are at a fixed horizontal distance from hoop center (22 ft)
+        float cornerOffset = (float)(CourtGeometry.FtToPx(CourtGeometry.CornerThreeDistFt, dpi, scale) * scaleFactor);
+        float leftCornerX = hoopX - cornerOffset;
+        float rightCornerX = hoopX + cornerOffset;
+
+        // Compute intersection Y of each corner line with the 3PT circle
+        var (lY1, lY2) = FastBoard.Core.Geometry.CourtGeometry.CircleVerticalLineIntersectionY(hoopX, hoopY, threeR, leftCornerX);
+        var (rY1, rY2) = FastBoard.Core.Geometry.CourtGeometry.CircleVerticalLineIntersectionY(hoopX, hoopY, threeR, rightCornerX);
+        float leftIntersectY = float.IsNaN((float)lY1) && float.IsNaN((float)lY2) ? hoopY : (float)Math.Max(lY1, lY2);
+        float rightIntersectY = float.IsNaN((float)rY1) && float.IsNaN((float)rY2) ? hoopY : (float)Math.Max(rY1, rY2);
+
+        // Draw corner lines from near baseline to the intersection points
+        float cornerBottomPadding = 0f;
+        float lineStartY = hoopY + 12 + cornerBottomPadding; // just below backboard
+        canvas.DrawLine(leftCornerX, lineStartY, leftCornerX, leftIntersectY, paint);
+        canvas.DrawLine(rightCornerX, lineStartY, rightCornerX, rightIntersectY, paint);
+
+        // Draw the arc between the intersection points (clockwise sweep)
+        static float DegNorm(float a) { a %= 360f; if (a < 0) a += 360f; return a; }
+        float AngleAt(float x, float y, float cx, float cy)
+        {
+            float ang = (float)(Math.Atan2(y - cy, x - cx) * 180.0 / Math.PI);
+            return DegNorm(ang);
+        }
+        float leftAng = AngleAt(leftCornerX, leftIntersectY, hoopX, hoopY);
+        float rightAng = AngleAt(rightCornerX, rightIntersectY, hoopX, hoopY);
+        float cwSweep = DegNorm(rightAng - leftAng);
+        float sweep = (cwSweep >= 80f && cwSweep <= 200f) ? cwSweep : DegNorm(leftAng - rightAng);
+        float start = (sweep == cwSweep) ? leftAng : rightAng;
+        canvas.DrawArc(threeRect, start, sweep, false, paint);
+
+        // If full court, draw mirrored far-end hoop and lines
+        if (!HalfCourt)
+        {
+            float hoopY2 = rect.Bottom - basketToBaselinePx;
+            // hoop and backboard (backboard above the hoop)
+            canvas.DrawCircle(hoopX, hoopY2, 9, paint);
+            canvas.DrawLine(hoopX - 30, hoopY2 - 12, hoopX + 30, hoopY2 - 12, paint);
+
+            // Key / lane (extend upward from backboard)
+            var laneWidth2 = laneWidth; // same
+            float laneLeft2 = rect.MidX - laneWidth2 / 2f;
+            float laneTop2 = hoopY2 - 12 - 12 - ftFromBackboardPx;
+            canvas.DrawRect(laneLeft2, laneTop2, laneWidth2, ftFromBackboardPx, paint);
+            float ftY2 = laneTop2 + ftFromBackboardPx;
+            // Full free-throw circle (far end) with dashed boundary option
+            using (var ftPaint = new SKPaint{ Color = paint.Color, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = paint.StrokeWidth, PathEffect = SKPathEffect.CreateDash(new float[]{12,8}, 0) })
+                canvas.DrawCircle(rect.MidX, ftY2, ftRadius, ftPaint);
+
+            // Restricted area arc
+            var restRect2 = new SKRect(hoopX - restR, hoopY2 - restR, hoopX + restR, hoopY2 + restR);
+            // Restricted area arc opens toward far baseline (upwards on screen)
+            canvas.DrawArc(restRect2, 30, 120, false, paint);
+
+            // Three-point arc and corners (far end)
+            var threeRect2 = new SKRect(hoopX - threeR, hoopY2 - threeR, hoopX + threeR, hoopY2 + threeR);
+            float leftCornerX2 = leftCornerX;
+            float rightCornerX2 = rightCornerX;
+            var (l2Y1, l2Y2) = FastBoard.Core.Geometry.CourtGeometry.CircleVerticalLineIntersectionY(hoopX, hoopY2, threeR, leftCornerX2);
+            var (r2Y1, r2Y2) = FastBoard.Core.Geometry.CourtGeometry.CircleVerticalLineIntersectionY(hoopX, hoopY2, threeR, rightCornerX2);
+            float leftIntersectY2 = float.IsNaN((float)l2Y1) && float.IsNaN((float)l2Y2) ? hoopY2 : (float)Math.Min(l2Y1, l2Y2);
+            float rightIntersectY2 = float.IsNaN((float)r2Y1) && float.IsNaN((float)r2Y2) ? hoopY2 : (float)Math.Min(r2Y1, r2Y2);
+            float lineStartY2 = hoopY2 - 12 - cornerBottomPadding;
+            canvas.DrawLine(leftCornerX2, lineStartY2, leftCornerX2, leftIntersectY2, paint);
+            canvas.DrawLine(rightCornerX2, lineStartY2, rightCornerX2, rightIntersectY2, paint);
+            float leftAng2 = AngleAt(leftCornerX2, leftIntersectY2, hoopX, hoopY2);
+            float rightAng2 = AngleAt(rightCornerX2, rightIntersectY2, hoopX, hoopY2);
+            float cwSweep2 = DegNorm(rightAng2 - leftAng2);
+            float sweep2 = (cwSweep2 >= 80f && cwSweep2 <= 200f) ? cwSweep2 : DegNorm(leftAng2 - rightAng2);
+            float start2 = (sweep2 == cwSweep2) ? leftAng2 : rightAng2;
+            canvas.DrawArc(threeRect2, start2, sweep2, false, paint);
+        }
+
+        // Apply camera transform
+        canvas.Save();
+        canvas.Translate(_pan.X, _pan.Y);
+        canvas.Scale(_zoom);
 
         // Draw shapes from VM
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm)
         {
             var shapes = vm.CurrentFrameIndex >= 0 && vm.CurrentFrameIndex < vm.Frames.Count - 1
                 ? vm.GetFrameShapes(Math.Min(1f, AnimationT))
-                : vm.Shapes;
+                : vm.Shapes; // if exactly last frame selected, we show static shapes of last frame elsewhere
             foreach (var shape in shapes)
             {
                 switch (shape)
                 {
                     case FastBoard.Core.Models.ArrowShape a:
                         DrawArrow(canvas, a);
-                        if (a.Selected) DrawSelection(canvas, new SKRect(Math.Min(a.Start.X,a.End.X)-8, Math.Min(a.Start.Y,a.End.Y)-8, Math.Max(a.Start.X,a.End.X)+8, Math.Max(a.Start.Y,a.End.Y)+8));
+                        if (a.Selected)
+                        {
+                            DrawSelection(canvas, new SKRect(Math.Min(a.Start.X,a.End.X)-8, Math.Min(a.Start.Y,a.End.Y)-8, Math.Max(a.Start.X,a.End.X)+8, Math.Max(a.Start.Y,a.End.Y)+8));
+                            DrawArrowHandles(canvas, a);
+                        }
                         break;
                     case FastBoard.Core.Models.DashedShape d:
                         DrawDashed(canvas, d);
                         break;
                     case FastBoard.Core.Tools.CurveShape c:
                         DrawCurve(canvas, c);
+                        if (c.Selected) DrawCurveHandles(canvas, c);
                         break;
                     case FastBoard.Core.Tools.ScreenShape s:
                         DrawScreen(canvas, s);
+                        if (s.Selected) DrawScreenHandles(canvas, s);
                         break;
                     case FastBoard.Core.Models.Token t:
                         DrawToken(canvas, t);
                         break;
                     case FastBoard.Core.Tools.ShotArcShape sa:
                         DrawShotArc(canvas, sa);
+                        break;
+                    case FastBoard.Core.Models.StrokeShape st:
+                        DrawStroke(canvas, st);
                         break;
                 }
             }
@@ -161,18 +273,42 @@ public sealed partial class CourtView : UserControl
                 canvas.DrawLine(a.pt, b.pt, sp);
             }
         }
-    }
+        canvas.Restore();
+   }
 
-    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
-    {
-        DrawBoard(e.Surface.Canvas, e.Info);
-    }
+   private SKPoint ScreenToWorld(SKPoint s) => new SKPoint((s.X - _pan.X)/_zoom, (s.Y - _pan.Y)/_zoom);
+   public System.Numerics.Vector2 ScreenToWorld(double x, double y)
+   {
+       var p = ScreenToWorld(new SKPoint((float)x, (float)y));
+       return new System.Numerics.Vector2(p.X, p.Y);
+   }
+
+   private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+   {
+       DrawBoard(e.Surface.Canvas, e.Info);
+   }
 
     private void OnPointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
         var pt = e.GetCurrentPoint(Canvas);
         float pressure = (float)pt.Properties.Pressure;
-        var p = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        var pScreen = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        // Stylus barrel button toggles eraser
+       if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Pen && pt.Properties.IsBarrelButtonPressed)
+       {
+           if (DataContext is FastBoard.ViewModels.BoardViewModel vmEraser && vmEraser.ActiveTool != FastBoard.Core.Tools.ToolType.Eraser)
+           {
+               _prevToolWhenEraser = vmEraser.ActiveTool;
+               vmEraser.ActiveTool = FastBoard.Core.Tools.ToolType.Eraser;
+           }
+       }
+
+       // Right-button pan start
+       if (pt.Properties.IsRightButtonPressed)
+       {
+           _isPanning = true; _lastPanPt = pScreen; return;
+       }
+        var p = ScreenToWorld(pScreen);
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
         {
             tool.Begin(new System.Numerics.Vector2(p.X, p.Y), pressure);
@@ -188,7 +324,14 @@ public sealed partial class CourtView : UserControl
     private void OnPointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
         var pt = e.GetCurrentPoint(Canvas);
-        var p = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        var pScreen = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        if (_isPanning)
+        {
+            var delta = new SKPoint(pScreen.X - _lastPanPt.X, pScreen.Y - _lastPanPt.Y);
+            _pan = new SKPoint(_pan.X + delta.X, _pan.Y + delta.Y);
+            _lastPanPt = pScreen; Canvas.Invalidate(); return;
+        }
+        var p = ScreenToWorld(pScreen);
         float pressure = (float)pt.Properties.Pressure;
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
         {
@@ -204,8 +347,18 @@ public sealed partial class CourtView : UserControl
     private void OnPointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
         var pt = e.GetCurrentPoint(Canvas);
-        var p = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
-        float pressure = (float)pt.Properties.Pressure;
+        var pScreen = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        if (_isPanning) { _isPanning = false; return; }
+
+       // Restore tool if we toggled eraser
+       if (_prevToolWhenEraser.HasValue && DataContext is FastBoard.ViewModels.BoardViewModel vm0)
+       {
+           vm0.ActiveTool = _prevToolWhenEraser.Value;
+           _prevToolWhenEraser = null;
+       }
+
+       var p = ScreenToWorld(pScreen);
+       float pressure = (float)pt.Properties.Pressure;
         if (DataContext is FastBoard.ViewModels.BoardViewModel vm && vm.GetActiveDrawingTool() is FastBoard.Core.Tools.IDrawingTool tool)
         {
             tool.End(new System.Numerics.Vector2(p.X, p.Y), pressure);
@@ -252,8 +405,20 @@ public sealed partial class CourtView : UserControl
     {
         using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=s.Thickness, IsAntialias=true };
         var half = new SKPoint(s.Size.X/2, s.Size.Y/2);
-        var r = new SKRoundRect(new SKRect(s.Center.X-half.X, s.Center.Y-half.Y, s.Center.X+half.X, s.Center.Y+half.Y), s.CornerRadius, s.CornerRadius);
+        var rect = new SKRect(-half.X, -half.Y, half.X, half.Y);
+        canvas.Save();
+        canvas.Translate(s.Center.X, s.Center.Y);
+        canvas.RotateDegrees(s.Rotation);
+        var r = new SKRoundRect(rect, s.CornerRadius, s.CornerRadius);
         canvas.DrawRoundRect(r, p);
+        canvas.Restore();
+    }
+
+    private void DrawShotArc(SKCanvas canvas, FastBoard.Core.Tools.ShotArcShape s)
+    {
+        using var p = new SKPaint{ Color = SKColors.White, Style=SKPaintStyle.Stroke, StrokeWidth=s.Thickness, IsAntialias=true };
+        var rect = new SKRect(s.Center.X - s.Radius, s.Center.Y - s.Radius, s.Center.X + s.Radius, s.Center.Y + s.Radius);
+        canvas.DrawArc(rect, s.StartAngleDeg, s.SweepDeg, false, p);
     }
 
     private void DrawSelection(SKCanvas canvas, SKRect rect)
@@ -262,20 +427,102 @@ public sealed partial class CourtView : UserControl
         canvas.DrawRect(rect, p);
     }
 
+    private static void DrawHandle(SKCanvas canvas, SKPoint p)
+    {
+        using var fill = new SKPaint{ Color = SKColors.Yellow, Style = SKPaintStyle.Fill, IsAntialias = true };
+        using var stroke = new SKPaint{ Color = SKColors.Black, Style = SKPaintStyle.Stroke, StrokeWidth = 1, IsAntialias = true };
+        var r = new SKRect(p.X-5, p.Y-5, p.X+5, p.Y+5);
+        canvas.DrawRect(r, fill);
+        canvas.DrawRect(r, stroke);
+    }
+
+    private void DrawArrowHandles(SKCanvas canvas, FastBoard.Core.Models.ArrowShape a)
+    {
+        DrawHandle(canvas, new SKPoint(a.Start.X, a.Start.Y));
+        DrawHandle(canvas, new SKPoint(a.End.X, a.End.Y));
+    }
+
+    private void DrawCurveHandles(SKCanvas canvas, FastBoard.Core.Tools.CurveShape c)
+    {
+        DrawHandle(canvas, new SKPoint(c.P0.X, c.P0.Y));
+        DrawHandle(canvas, new SKPoint(c.P1.X, c.P1.Y));
+        DrawHandle(canvas, new SKPoint(c.P2.X, c.P2.Y));
+    }
+
+    private void DrawScreenHandles(SKCanvas canvas, FastBoard.Core.Tools.ScreenShape s)
+    {
+        var half = new SKPoint(s.Size.X/2, s.Size.Y/2);
+        var nw = new SKPoint(s.Center.X - half.X, s.Center.Y - half.Y);
+        var ne = new SKPoint(s.Center.X + half.X, s.Center.Y - half.Y);
+        var sw = new SKPoint(s.Center.X - half.X, s.Center.Y + half.Y);
+        var se = new SKPoint(s.Center.X + half.X, s.Center.Y + half.Y);
+        DrawHandle(canvas, nw); DrawHandle(canvas, ne); DrawHandle(canvas, sw); DrawHandle(canvas, se);
+        var rot = new SKPoint(s.Center.X, s.Center.Y - half.Y - 20);
+        DrawHandle(canvas, rot);
+    }
+
+    private void DrawTokenHandles(SKCanvas canvas, FastBoard.Core.Models.Token t, float radius)
+    {
+        // resize handle at SE, rotate handle above
+        DrawHandle(canvas, new SKPoint(radius, radius));
+        DrawHandle(canvas, new SKPoint(0, -radius - 20));
+    }
+
+    private void DrawStroke(SKCanvas canvas, FastBoard.Core.Models.StrokeShape s)
+    {
+        if (s.Points.Count < 2) return;
+        for (int i=1;i<s.Points.Count;i++)
+        {
+            var a = s.Points[i-1];
+            var b = s.Points[i];
+            float pa = i-1 < s.Pressures.Count ? s.Pressures[i-1] : 0.5f;
+            float pb = i < s.Pressures.Count ? s.Pressures[i] : 0.5f;
+            float w = s.ThicknessBase + 6 * pb;
+            using var sp = new SKPaint{ Color = SKColors.OrangeRed, StrokeCap = SKStrokeCap.Round, IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = w };
+            canvas.DrawLine(new SKPoint(a.X, a.Y), new SKPoint(b.X, b.Y), sp);
+        }
+    }
+
     private readonly Dictionary<string, SKBitmap> _bitmapCache = new();
     private void DrawToken(SKCanvas canvas, FastBoard.Core.Models.Token t)
     {
-        if (t.Selected)
+        var tokenColor = new SKColor((byte)((t.Color >> 16) & 0xFF), (byte)((t.Color >> 8) & 0xFF), (byte)(t.Color & 0xFF), (byte)((t.Color >> 24) & 0xFF));
+        canvas.Save();
+        canvas.Translate(t.Position.X, t.Position.Y);
+        canvas.RotateDegrees(t.Rotation);
+        // If no image provided, draw vector token
+        if (string.IsNullOrEmpty(t.ImagePath) && (t.ImageBytes == null || t.ImageBytes.Length == 0))
         {
-            DrawSelection(canvas, new SKRect(t.Position.X-24, t.Position.Y-24, t.Position.X+24, t.Position.Y+24));
-        }
-        if (string.IsNullOrEmpty(t.ImagePath))
-        {
-            using var p = new SKPaint{ Color = SKColors.Blue, Style=SKPaintStyle.Fill, IsAntialias=true };
-            canvas.DrawCircle(t.Position.X, t.Position.Y, 18*t.Scale, p);
+            using var p = new SKPaint{ Color = tokenColor, Style=SKPaintStyle.Fill, IsAntialias=true };
+            float radius = 18*t.Scale;
+            canvas.DrawCircle(0, 0, radius, p);
+            if (t.Number != 0)
+            {
+                using var tp = new SKPaint{ Color = SKColors.White, IsAntialias = true, TextAlign = SKTextAlign.Center, TextSize = 14 * t.Scale };
+                canvas.DrawText(t.Number.ToString(), 0, tp.TextSize/3, tp);
+            }
+            if (t.Selected) DrawTokenHandles(canvas, t, radius);
+            canvas.Restore();
             return;
         }
-        if (!_bitmapCache.TryGetValue(t.ImagePath, out var bmp))
+        string key = !string.IsNullOrEmpty(t.ImagePath) ? t.ImagePath : ($"mem:{t.ImageBytes?.Length}:{t.ImageBytes?.GetHashCode()}");
+        if (!_bitmapCache.TryGetValue(key, out var bmp))
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(t.ImagePath))
+                {
+                    using var fs = File.OpenRead(t.ImagePath);
+                    bmp = SKBitmap.Decode(fs);
+                }
+                else if (t.ImageBytes != null)
+                {
+                    bmp = SKBitmap.Decode(t.ImageBytes);
+                }
+                if (bmp != null) _bitmapCache[key] = bmp;
+            }
+            catch { }
+        }
         {
             try
             {
@@ -288,17 +535,70 @@ public sealed partial class CourtView : UserControl
         if (bmp != null)
         {
             var w = bmp.Width * t.Scale; var h = bmp.Height * t.Scale;
-            var dest = new SKRect(t.Position.X - w/2, t.Position.Y - h/2, t.Position.X + w/2, t.Position.Y + h/2);
+            var dest = new SKRect(-w/2, -h/2, w/2, h/2);
             canvas.DrawBitmap(bmp, dest);
+            if (t.Selected) DrawTokenHandles(canvas, t, Math.Max(w,h)/2);
         }
+        canvas.Restore();
     }
 
-    public void ZoomIn() => Canvas.Invalidate();
-    public void ZoomOut() => Canvas.Invalidate();
-    public void ZoomReset() => Canvas.Invalidate();
+    public void ZoomIn() { _zoom *= 1.1f; Canvas.Invalidate(); }
+    public void ZoomOut() { _zoom /= 1.1f; Canvas.Invalidate(); }
+    public void ZoomReset() { _zoom = 1f; _pan = new SKPoint(0,0); Canvas.Invalidate(); }
 
-    public bool ExportPng(string path, int width, int height)
+    private void OnDoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
     {
+        ZoomReset();
+        e.Handled = true;
+    }
+
+    private void OnPointerWheelChanged(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        var pt = e.GetCurrentPoint(Canvas);
+        float delta = (float)pt.Properties.MouseWheelDelta; // positive up
+        var s = new SKPoint((float)pt.Position.X, (float)pt.Position.Y);
+        float oldZoom = _zoom;
+        float factor = delta > 0 ? 1.1f : 1f/1.1f;
+        float newZoom = MathF.Max(0.1f, MathF.Min(8f, oldZoom * factor));
+        float ratio = newZoom / oldZoom;
+        // keep cursor world point stable: pan' = (1 - ratio)*s + ratio*pan
+        _pan = new SKPoint((1 - ratio) * s.X + ratio * _pan.X, (1 - ratio) * s.Y + ratio * _pan.Y);
+        _zoom = newZoom;
+        Canvas.Invalidate();
+    }
+
+    private void OnManipulationStarted(object sender, Microsoft.UI.Xaml.Input.ManipulationStartedRoutedEventArgs e)
+   {
+       _isManipulating = true;
+       _startZoom = _zoom;
+       _manipulationCenter = new SKPoint((float)e.Position.X, (float)e.Position.Y);
+       e.Handled = true;
+   }
+
+   private void OnManipulationDelta(object sender, Microsoft.UI.Xaml.Input.ManipulationDeltaRoutedEventArgs e)
+   {
+       if (!_isManipulating) return;
+       // Apply scale around center
+       float oldZoom = _zoom;
+       float factor = (float)e.Delta.Scale;
+       float newZoom = MathF.Max(0.1f, MathF.Min(8f, oldZoom * factor));
+       float ratio = newZoom / oldZoom;
+       var s = _manipulationCenter;
+       _pan = new SKPoint((1 - ratio) * s.X + ratio * _pan.X, (1 - ratio) * s.Y + ratio * _pan.Y);
+       _zoom = newZoom;
+       // Also translate by touch translation
+       _pan = new SKPoint(_pan.X + (float)e.Delta.Translation.X, _pan.Y + (float)e.Delta.Translation.Y);
+       Canvas.Invalidate();
+       e.Handled = true;
+   }
+
+   private void OnManipulationCompleted(object sender, Microsoft.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
+   {
+       _isManipulating = false; e.Handled = true;
+   }
+
+   public bool ExportPng(string path, int width, int height)
+   {
         try
         {
             using var surface = SKSurface.Create(new SKImageInfo(width, height));

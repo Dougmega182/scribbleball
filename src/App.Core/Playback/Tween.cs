@@ -10,6 +10,15 @@ public static class Tween
         return t < 0.5f ? 2*t*t : -1 + (4 - 2*t)*t;
     }
 
+    public static float ApplyEase(float t, FastBoard.Core.Models.EaseType ease)
+    {
+        return ease switch
+        {
+            FastBoard.Core.Models.EaseType.EaseInOut => EaseInOut(Math.Clamp(t,0f,1f)),
+            _ => Math.Clamp(t,0f,1f)
+        };
+    }
+
     public static Vector2 Lerp(Vector2 a, Vector2 b, float t) => a + (b-a)*t;
 
     public static Shape LerpShape(Shape a, Shape b, float t)

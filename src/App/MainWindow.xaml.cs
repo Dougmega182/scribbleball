@@ -1,42 +1,125 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Shapes;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.UI;
 using FastBoard.Core.Serialization;
 using IOPath = System.IO.Path;
 using System.IO;
 using SkiaSharp;
 using SkiaSharp.Views.Windows;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace FastBoard
 {
     public sealed partial class MainWindow : Window
     {
         private readonly ViewModels.BoardViewModel _vm = new();
+        private FastBoard.Core.Models.Playbook _playbook = new FastBoard.Core.Models.Playbook();
+        private int _currentPlayIndex = -1;
         public MainWindow()
         {
             this.InitializeComponent();
             Court.DataContext = _vm;
+            FrameSlider.Maximum = Math.Max(0, _vm.Frames.Count - 1);
+            FrameSlider.Value = Math.Max(0, _vm.CurrentFrameIndex);
+            ProgressSlider.Value = 0;
+            UpdateDurationBox();
+        }
+
+        private void ShowToast(string message, bool error=false)
+        {
+            ToastBar.Severity = error ? InfoBarSeverity.Error : InfoBarSeverity.Success;
+            ToastBar.Message = message;
+            ToastBar.IsOpen = true;
+        }
+
+        private void ConfirmAndExecute(string title, string content, Action action)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = content,
+                PrimaryButtonText = "OK",
+                SecondaryButtonText = "Cancel",
+                XamlRoot = this.Content.XamlRoot
+            };
+            dialog.PrimaryButtonClick += (_, __) => action();
+            _ = dialog.ShowAsync();
         }
 
         private void OnSavePlaybook(object sender, RoutedEventArgs e)
         {
-            var json = Core.Serialization.BoardStateSerializer.ToJson(_vm.Shapes);
+            if (_playbook.Plays.Count == 0)
+            {
+                _playbook.Plays.Add(new FastBoard.Core.Models.Play{ Title = "Play 1" });
+                _currentPlayIndex = 0;
+            }
+            // sync current VM state back to the current play
+            SyncPlayFromVm();
+            // compress images for all plays prior to save
+            foreach (var p in _playbook.Plays)
+            {
+                foreach (var fr in p.Frames)
+                {
+                    CompressTokenImages(fr.Shapes);
+                }
+            }
+            var pb = _playbook;
+            if (string.IsNullOrEmpty(pb.Name)) pb.Name = "Playbook";
+            if (pb.Plays[_currentPlayIndex].Title == string.Empty) pb.Plays[_currentPlayIndex].Title = $"Play {_currentPlayIndex+1}";
+            var json = FastBoard.Core.Serialization.PlaybookSerializer.ToJson(pb);
             Directory.CreateDirectory("dist");
-            File.WriteAllText(IOPath.Combine("dist","board.json"), json);
+            File.WriteAllText(IOPath.Combine("dist","playbook.json"), json);
+        }
+                // capture one frame if none
+                var fs = FastBoard.Core.Playback.FrameState.Capture(_vm.Shapes);
+                play.Frames.Add(new FastBoard.Core.Models.Frame { Id = 1, Duration = 1.0, Shapes = fs.Shapes });
+            }
+            else
+            {
+                for (int i=0;i<_vm.Frames.Count;i++)
+                {
+                    var dur = (i < _vm.FrameDurations.Count) ? _vm.FrameDurations[i] : 1.0;
+                    play.Frames.Add(new FastBoard.Core.Models.Frame { Id = i+1, Duration = dur, Shapes = _vm.Frames[i].Shapes });
+                }
+            }
+            pb.Plays.Add(play);
+            var json = FastBoard.Core.Serialization.PlaybookSerializer.ToJson(pb);
+            Directory.CreateDirectory("dist");
+            File.WriteAllText(IOPath.Combine("dist","playbook.json"), json);
         }
 
-        private void OnOpenPlaybook(object sender, RoutedEventArgs e)
+        private async void OnOpenPlaybook(object sender, RoutedEventArgs e)
         {
-            var path = IOPath.Combine("dist","board.json");
-            if (File.Exists(path))
+            var picker = new FileOpenPicker();
+            InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
+            picker.FileTypeFilter.Add(".json");
+            picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
             {
+                var path = file.Path;
                 var json = File.ReadAllText(path);
-                _vm.Shapes.Clear();
-                _vm.Shapes.AddRange(Core.Serialization.BoardStateSerializer.FromJson(json));
-                Court.InvalidateArrange();
+                try
+                {
+                    _playbook = FastBoard.Core.Serialization.PlaybookSerializer.FromJson(json);
+                    _currentPlayIndex = _playbook.Plays.Count > 0 ? 0 : -1;
+                    RefreshPlayPicker();
+                    SyncVmFromCurrentPlay();
+                    FastBoard.Core.Services.DiagnosticsLogger.Info($"Opened playbook from {path}");
+                    ShowToast($"Opened playbook");
+                }
+                catch (Exception ex)
+                {
+                    FastBoard.Core.Services.DiagnosticsLogger.Error("Open failed", ex);
+                    ShowToast("Open failed", true);
+                }
             }
         }
 
@@ -53,42 +136,85 @@ namespace FastBoard
 
         private void OnAddSampleToken(object sender, RoutedEventArgs e)
         {
+        
             var p = new System.Numerics.Vector2(200,200);
             var sample = IOPath.Combine("sample_data","placeholder1.png");
-            _vm.Shapes.Add(new Core.Models.Token{ Name="P1", ImagePath=sample, Position=p, Scale=0.75f });
+            _vm.AddToken(sample, p);
             Court.InvalidateArrange();
+        }
+
+        private void OnPaletteDragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            var first = e.Items?.FirstOrDefault();
+            string? text = (first as TextBlock)?.Text;
+            if (string.IsNullOrEmpty(text)) return;
+            e.Data.SetText(text);
+            e.Data.RequestedOperation = DataPackageOperation.Copy;
         }
 
         private void OnCaptureFrame(object sender, RoutedEventArgs e)
         {
             _vm.CaptureFrame();
+            FrameSlider.Maximum = Math.Max(0, _vm.Frames.Count - 1);
+            FrameSlider.Value = Math.Max(0, _vm.CurrentFrameIndex);
+            UpdateDurationBox();
         }
 
         private void OnPlay(object sender, RoutedEventArgs e)
         {
             _playTimer ??= new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _playTimer.Tick -= OnPlayTick;
             _playTimer.Tick += OnPlayTick;
             _lastTick = DateTime.UtcNow;
-            _t = 0f;
+            if (_t <= 0f || _t >= 1f) _t = 0f;
             _playTimer.Start();
         }
 
         private void OnPause(object sender, RoutedEventArgs e)
         {
             _playTimer?.Stop();
-            _t = 0f;
-            Court.AnimationT = 0f;
         }
 
         private void OnNext(object sender, RoutedEventArgs e)
         {
-            if (_vm.Frames.Count > 0 && _vm.CurrentFrameIndex < _vm.Frames.Count - 1)
+            if (_vm.Frames.Count == 0) return;
+            if (_vm.CurrentFrameIndex < _vm.Frames.Count - 2)
+            {
                 _vm.CurrentFrameIndex++;
+                _t = 0f; Court.AnimationT = 0f; Court.InvalidateArrange();
+            }
+            else if (_loop)
+            {
+                _vm.CurrentFrameIndex = 0; _t = 0f; Court.AnimationT = 0f; Court.InvalidateArrange();
+            }
         }
 
         private void OnPrev(object sender, RoutedEventArgs e)
         {
-            if (_vm.CurrentFrameIndex > 0) _vm.CurrentFrameIndex--;
+            if (_vm.Frames.Count == 0) return;
+            if (_vm.CurrentFrameIndex > 0)
+            {
+                _vm.CurrentFrameIndex--; _t = 0f; Court.AnimationT = 0f; Court.InvalidateArrange();
+            }
+            else if (_loop && _vm.Frames.Count > 1)
+            {
+                _vm.CurrentFrameIndex = _vm.Frames.Count - 2; _t = 0f; Court.AnimationT = 0f; Court.InvalidateArrange();
+            }
+        }
+
+        private void OnCanvasDragOver(object sender, DragEventArgs e) { e.AcceptedOperation = DataPackageOperation.Copy; }
+        private async void OnCanvasDrop(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(StandardDataFormats.Text))
+            {
+                var text = await e.DataView.GetTextAsync();
+                var point = e.GetPosition(CanvasGrid);
+                var pos = Court.ScreenToWorld(point.X, point.Y);
+                string? image = text.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? text : null;
+                if (text == "Circle Token") image = null;
+                _vm.AddToken(image, pos);
+                Court.InvalidateArrange();
+            }
         }
 
         private void OnPlayTick(object? sender, object e)
@@ -96,16 +222,31 @@ namespace FastBoard
             var now = DateTime.UtcNow;
             var dt = (float)(now - _lastTick).TotalSeconds;
             _lastTick = now;
-            _t += dt; // seconds
+            double segmentDuration = 1.0;
+            if (_vm.CurrentFrameIndex >= 0 && _vm.CurrentFrameIndex < _vm.FrameDurations.Count)
+                segmentDuration = Math.Max(0.05, _vm.FrameDurations[_vm.CurrentFrameIndex]);
+            _t += (float)(dt / segmentDuration); // normalized progress per segment
             if (_t >= 1f)
             {
                 _t = 0f;
                 if (_vm.CurrentFrameIndex < _vm.Frames.Count - 2)
+                {
                     _vm.CurrentFrameIndex++;
+                }
+                else if (_loop && _vm.Frames.Count > 1)
+                {
+                    _vm.CurrentFrameIndex = 0;
+                }
                 else
+                {
                     _playTimer?.Stop();
+                }
             }
-            Court.AnimationT = _t;
+            Court.AnimationT = Math.Clamp(_t, 0f, 1f);
+            ProgressSlider.Value = Court.AnimationT;
+            FrameSlider.Maximum = Math.Max(0, _vm.Frames.Count - 1);
+            FrameSlider.Value = Math.Max(0, _vm.CurrentFrameIndex);
+            UpdateDurationBox();
             Court.InvalidateArrange();
         }
 
@@ -116,39 +257,113 @@ namespace FastBoard
         private DispatcherTimer? _playTimer;
         private DateTime _lastTick;
         private float _t;
+        private bool _loop;
 
-        private void OnExportFrames(object sender, RoutedEventArgs e)
+        private void OnLoopToggled(object sender, RoutedEventArgs e)
         {
-            var court = FindDescendant<Controls.CourtView>(this.Content as FrameworkElement);
-            if (court == null) return;
-            var field = typeof(Controls.CourtView).GetField("Canvas", System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Public);
-            if (field?.GetValue(court) is SKXamlCanvas sk)
+            _loop = (ToggleLoop?.IsChecked ?? false);
+        }
+
+        private void OnFrameSliderChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            int idx = (int)Math.Round(e.NewValue);
+            if (_vm.Frames.Count > 0)
             {
-                var width = (int)Math.Max(1, sk.ActualWidth);
-                var height = (int)Math.Max(1, sk.ActualHeight);
-                var framesDir = IOPath.Combine("dist","frames");
-                Directory.CreateDirectory(framesDir);
-                for (int i=0; i<8; i++)
+                _vm.CurrentFrameIndex = Math.Clamp(idx, 0, Math.Max(0,_vm.Frames.Count-1));
+                _t = 0f; Court.AnimationT = 0f; UpdateDurationBox(); Court.InvalidateArrange();
+            }
+        }
+
+        private void OnProgressSliderChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            _t = (float)Math.Clamp(e.NewValue, 0.0, 1.0);
+            Court.AnimationT = _t; Court.InvalidateArrange();
+        }
+
+        private void OnInsertFrame(object sender, RoutedEventArgs e)
+        {
+            var fs = FastBoard.Core.Playback.FrameState.Capture(_vm.Shapes);
+            if (_vm.CurrentFrameIndex >= 0 && _vm.CurrentFrameIndex < _vm.Frames.Count)
+            {
+                _vm.Frames.Insert(_vm.CurrentFrameIndex + 1, fs);
+                // New segment between old current and new frame; default duration 1s inserted at current index
+                _vm.FrameDurations.Insert(_vm.CurrentFrameIndex, 1.0);
+                _vm.CurrentFrameIndex++;
+            }
+            else
+            {
+                _vm.Frames.Add(fs);
+                if (_vm.Frames.Count >= 2) _vm.FrameDurations.Add(1.0);
+                _vm.CurrentFrameIndex = Math.Max(0, _vm.Frames.Count - 2);
+            }
+            _t = 0f; Court.AnimationT = 0f; UpdateDurationBox(); Court.InvalidateArrange();
+            FrameSlider.Maximum = Math.Max(0, _vm.Frames.Count - 1);
+            FrameSlider.Value = Math.Max(0, _vm.CurrentFrameIndex);
+        }
+
+        private void OnRemoveFrame(object sender, RoutedEventArgs e)
+        {
+            if (_vm.Frames.Count == 0 || _vm.CurrentFrameIndex < 0) return;
+            int idx = _vm.CurrentFrameIndex;
+            _vm.Frames.RemoveAt(idx);
+            // Adjust durations: removing a frame eliminates one adjacent segment
+            if (_vm.FrameDurations.Count > 0)
+            {
+                if (idx < _vm.FrameDurations.Count) _vm.FrameDurations.RemoveAt(idx);
+                else if (_vm.FrameDurations.Count > 0) _vm.FrameDurations.RemoveAt(_vm.FrameDurations.Count - 1);
+            }
+            if (_vm.Frames.Count <= 1) { _vm.CurrentFrameIndex = -1; }
+            else { _vm.CurrentFrameIndex = Math.Clamp(idx - 1, 0, _vm.Frames.Count - 2); }
+            _t = 0f; Court.AnimationT = 0f; UpdateDurationBox(); Court.InvalidateArrange();
+            FrameSlider.Maximum = Math.Max(0, _vm.Frames.Count - 1);
+            FrameSlider.Value = Math.Max(0, _vm.CurrentFrameIndex);
+        }
+
+        private async void OnExportFrames(object sender, RoutedEventArgs e)
+        {
+            var court = Court;
+            var framesDir = IOPath.Combine("dist","frames");
+            Directory.CreateDirectory(framesDir);
+            int fps = 30;
+            int index = 0;
+            float savedT = _t; int savedIdx = _vm.CurrentFrameIndex; bool wasPlaying = _playTimer?.IsEnabled == true;
+            _playTimer?.Stop();
+            try
+            {
+                if (_vm.Frames.Count <= 1)
                 {
-                    using var surface = SKSurface.Create(new SKImageInfo(width, height));
-                    var canvas = surface.Canvas;
-                    canvas.Clear(SKColors.ForestGreen);
-                    using var paint = new SKPaint{ Color = SKColors.White, StrokeWidth=3, Style=SKPaintStyle.Stroke, IsAntialias=true };
-                    // draw changing rectangle to simulate animation
-                    float margin = 10 + i*3;
-                    canvas.DrawRect(new SKRect(margin,margin,width-margin,height-margin), paint);
-                    canvas.Flush();
-                    using var snapshot = surface.Snapshot();
-                    using var data = snapshot.Encode(SKEncodedImageFormat.Png, 90);
-                    using var fs = File.OpenWrite(IOPath.Combine(framesDir,$"frame-{i:0000}.png"));
-                    data.SaveTo(fs);
+                    // single frame
+                    var path = IOPath.Combine(framesDir,$"frame-{index++:0000}.png");
+                    court.ExportPng(path, Math.Max(800,(int)Court.ActualWidth), Math.Max(600,(int)Court.ActualHeight));
                 }
+                else
+                {
+                    for (int seg = 0; seg < _vm.Frames.Count - 1; seg++)
+                    {
+                        _vm.CurrentFrameIndex = seg;
+                        double dur = (seg < _vm.FrameDurations.Count) ? _vm.FrameDurations[seg] : 1.0;
+                        int steps = Math.Max(1, (int)Math.Round(dur * fps));
+                        for (int s=0; s<steps; s++)
+                        {
+                            _t = (float)(s / (double)steps);
+                            court.AnimationT = _t;
+                            court.InvalidateArrange();
+                            var path = IOPath.Combine(framesDir,$"frame-{index++:0000}.png");
+                            court.ExportPng(path, Math.Max(800,(int)Court.ActualWidth), Math.Max(600,(int)Court.ActualHeight));
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                _vm.CurrentFrameIndex = savedIdx; _t = savedT; court.AnimationT = _t; if (wasPlaying) _playTimer?.Start();
             }
         }
 
         private void OnDeleteSelected(object sender, RoutedEventArgs e)
         {
-            for (int i=_vm.Shapes.Count-1;i>=0;i--) if (_vm.Shapes[i].Selected) _vm.Shapes.RemoveAt(i);
+            _vm.DeleteSelected();
+            _vm.NotifyUndoCountsChanged();
             Court.InvalidateArrange();
         }
 
@@ -159,8 +374,14 @@ namespace FastBoard
                 var tag = t.Tag as string;
                 _vm.ActiveTool = tag switch
                 {
+                    "Select" => Core.Tools.ToolType.Select,
                     "Arrow" => Core.Tools.ToolType.Arrow,
                     "Dribble" => Core.Tools.ToolType.Dribble,
+                    "Curve" => Core.Tools.ToolType.Curve,
+                    "Screen" => Core.Tools.ToolType.Screen,
+                    "Eraser" => Core.Tools.ToolType.Eraser,
+                    "ShotArc" => Core.Tools.ToolType.ShotArc,
+                    "Pen" => Core.Tools.ToolType.Pen,
                     _ => Core.Tools.ToolType.None
                 };
             }
@@ -178,6 +399,46 @@ namespace FastBoard
                 if (res != null) return res;
             }
             return null;
+        }
+
+        private void OnKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            bool shift = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+            bool ctrl = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+            int step = shift ? 10 : 1;
+            switch (e.Key)
+            {
+                case Windows.System.VirtualKey.Delete:
+                    _vm.DeleteSelected(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Left:
+                    _vm.NudgeSelected(-step, 0); _vm.NotifyUndoCountsChanged(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Right:
+                    _vm.NudgeSelected(step, 0); _vm.NotifyUndoCountsChanged(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Up:
+                    _vm.NudgeSelected(0, -step); _vm.NotifyUndoCountsChanged(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Down:
+                    _vm.NudgeSelected(0, step); _vm.NotifyUndoCountsChanged(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Z when ctrl:
+                    _vm.Undo.Undo(); _vm.NotifyUndoCountsChanged(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Y when ctrl:
+                    _vm.Undo.Redo(); _vm.NotifyUndoCountsChanged(); Court.InvalidateArrange(); e.Handled = true; break;
+                case Windows.System.VirtualKey.Number1:
+                    _vm.ActiveTool = Core.Tools.ToolType.Select; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number2:
+                    _vm.ActiveTool = Core.Tools.ToolType.Arrow; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number3:
+                    _vm.ActiveTool = Core.Tools.ToolType.Dribble; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number4:
+                    _vm.ActiveTool = Core.Tools.ToolType.Curve; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number5:
+                    _vm.ActiveTool = Core.Tools.ToolType.Screen; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number6:
+                    _vm.ActiveTool = Core.Tools.ToolType.Eraser; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number7:
+                    _vm.ActiveTool = Core.Tools.ToolType.ShotArc; e.Handled = true; break;
+                case Windows.System.VirtualKey.Number8:
+                    _vm.ActiveTool = Core.Tools.ToolType.Pen; e.Handled = true; break;
+            }
         }
     }
 }

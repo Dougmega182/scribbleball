@@ -4,6 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:skia="using:SkiaSharp.Views.Windows" >
     <Grid>
-        <skia:SKXamlCanvas x:Name="Canvas" PaintSurface="OnPaintSurface" PointerPressed="OnPointerPressed" PointerMoved="OnPointerMoved" PointerReleased="OnPointerReleased" />
+        <skia:SKXamlCanvas x:Name="Canvas" PaintSurface="OnPaintSurface" PointerPressed="OnPointerPressed" PointerMoved="OnPointerMoved" PointerReleased="OnPointerReleased" PointerWheelChanged="OnPointerWheelChanged" DoubleTapped="OnDoubleTapped" ManipulationMode="TranslateX,TranslateY,Scale,TranslateInertia,ScaleInertia" ManipulationDelta="OnManipulationDelta" ManipulationStarted="OnManipulationStarted" ManipulationCompleted="OnManipulationCompleted" />
     </Grid>
 </UserControl>

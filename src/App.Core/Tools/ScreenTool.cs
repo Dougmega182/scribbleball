@@ -16,9 +16,10 @@ public class ScreenTool : IDrawingTool
 {
     public ToolType Type => ToolType.Screen;
     private readonly List<Shape> _store;
+    private readonly Action<Shape>? _onCompleted;
     private ScreenShape? _current;
 
-    public ScreenTool(List<Shape> shapeStore) => _store = shapeStore;
+    public ScreenTool(List<Shape> shapeStore, Action<Shape>? onCompleted = null) { _store = shapeStore; _onCompleted = onCompleted; }
 
     public void Begin(Vector2 pt, float pressure = 0.5f)
     {
@@ -36,6 +37,7 @@ public class ScreenTool : IDrawingTool
         if (_current == null) return;
         Move(pt, pressure);
         _store.Add(_current);
+        _onCompleted?.Invoke(_current);
         _current = null;
     }
 }

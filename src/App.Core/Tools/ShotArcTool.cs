@@ -16,7 +16,8 @@ public class ShotArcTool : IDrawingTool
 {
     public ToolType Type => ToolType.ShotArc;
     private readonly List<Shape> _store; private ShotArcShape? _current;
-    public ShotArcTool(List<Shape> store) => _store = store;
+    private readonly Action<Shape>? _onCompleted;
+    public ShotArcTool(List<Shape> store, Action<Shape>? onCompleted = null) { _store = store; _onCompleted = onCompleted; }
     public void Begin(Vector2 pt, float pressure = 0.5f)
     {
         _current = new ShotArcShape{ Center = pt, Radius = 10 + 40*pressure, Thickness = MathF.Max(2f, 6f*pressure) };
@@ -27,6 +28,6 @@ public class ShotArcTool : IDrawingTool
     }
     public void End(Vector2 pt, float pressure = 0.5f)
     {
-        if (_current==null) return; _store.Add(_current); _current = null;
+        if (_current==null) return; _store.Add(_current); _onCompleted?.Invoke(_current); _current = null;
     }
 }

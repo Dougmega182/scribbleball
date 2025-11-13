@@ -15,9 +15,10 @@ public class CurveTool : IDrawingTool
 {
     public ToolType Type => ToolType.Curve;
     private readonly List<Shape> _store;
+    private readonly Action<Shape>? _onCompleted;
     private CurveShape? _current;
 
-    public CurveTool(List<Shape> shapeStore) => _store = shapeStore;
+    public CurveTool(List<Shape> shapeStore, Action<Shape>? onCompleted = null) { _store = shapeStore; _onCompleted = onCompleted; }
 
     public void Begin(Vector2 pt, float pressure = 0.5f)
     {
@@ -36,6 +37,7 @@ public class CurveTool : IDrawingTool
         if (_current == null) return;
         _current.P2 = pt;
         _store.Add(_current);
+        _onCompleted?.Invoke(_current);
         _current = null;
     }
 }

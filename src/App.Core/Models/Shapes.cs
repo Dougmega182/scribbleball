@@ -2,9 +2,12 @@ using System.Numerics;
 
 namespace FastBoard.Core.Models;
 
+public enum EaseType { Linear, EaseInOut }
+
 public abstract class Shape
 {
     public bool Selected { get; set; }
+    public EaseType Easing { get; set; } = EaseType.Linear;
 }
 
 public class ArrowShape : Shape
@@ -22,4 +25,11 @@ public class DashedShape : Shape
     public float Thickness { get; set; } = 3f;
     public float Dash { get; set; } = 6f;
     public float Gap { get; set; } = 6f;
+}
+
+public class StrokeShape : Shape
+{
+    public List<Vector2> Points { get; set; } = new();
+    public List<float> Pressures { get; set; } = new();
+    public float ThicknessBase { get; set; } = 2f;
 }

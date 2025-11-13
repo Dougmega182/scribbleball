@@ -8,7 +8,7 @@
     xmlns:controls="using:FastBoard.Controls"
     mc:Ignorable="d"
     Title="FastBoard">
-    <Grid>
+    <Grid KeyDown="OnKeyDown">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220" />
             <ColumnDefinition Width="*" />
@@ -18,34 +18,103 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <CommandBar Grid.ColumnSpan="2">
+            <InfoBar x:Name="ToastBar" IsOpen="False" Severity="Informational" Margin="8"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                <TextBlock Text="Play:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <ComboBox x:Name="PlayPicker" Width="220" SelectionChanged="OnPlaySelectionChanged"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                <TextBlock Text="Play:" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <ComboBox x:Name="PlayPicker" Width="220" SelectionChanged="OnPlaySelectionChanged"/>
+            </StackPanel>
             <AppBarButton Icon="Add" Label="New" />
-            <AppBarToggleButton Icon="SelectAll" Label="Select" Tag="Select" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleSelect" Icon="SelectAll" Label="Select" Tag="Select" Checked="OnToolToggle" />
             <AppBarButton Icon="Delete" Label="Delete" Click="OnDeleteSelected" />
-            <AppBarToggleButton Icon="Forward" Label="Arrow" Tag="Arrow" Checked="OnToolToggle" />
-            <AppBarToggleButton Icon="Shuffle" Label="Dribble" Tag="Dribble" Checked="OnToolToggle" />
-            <AppBarToggleButton Icon="Edit" Label="Curve" Tag="Curve" Checked="OnToolToggle" />
-            <AppBarToggleButton Icon="Rotate" Label="Screen" Tag="Screen" Checked="OnToolToggle" />
-            <AppBarToggleButton Icon="Erase" Label="Eraser" Tag="Eraser" Checked="OnToolToggle" />
-            <AppBarToggleButton Icon="EditMirroring" Label="Shot Arc" Tag="ShotArc" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleArrow" Icon="Forward" Label="Arrow" Tag="Arrow" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleDribble" Icon="Shuffle" Label="Dribble" Tag="Dribble" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleCurve" Icon="Edit" Label="Curve" Tag="Curve" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleScreen" Icon="Rotate" Label="Screen" Tag="Screen" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleEraser" Icon="Erase" Label="Eraser" Tag="Eraser" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="ToggleShotArc" Icon="EditMirroring" Label="Shot Arc" Tag="ShotArc" Checked="OnToolToggle" />
+            <AppBarToggleButton x:Name="TogglePen" Icon="PenWorkspace" Label="Pen" Tag="Pen" Checked="OnToolToggle" />
             <AppBarButton Icon="Save" Label="Save" Click="OnSavePlaybook"/>
             <AppBarButton Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
+            <AppBarSeparator/>
+            <AppBarButton Icon="Add" Label="Add Play" Click="OnAddPlay"/>
+            <AppBarButton Icon="Copy" Label="Duplicate Play" Click="OnDuplicatePlay"/>
+            <AppBarButton Icon="Delete" Label="Remove Play" Click="OnRemovePlay"/>
+            <AppBarButton Icon="Edit" Label="Rename Play" Click="OnRenamePlay"/>
             <AppBarButton Icon="Upload" Label="Export PNG" Click="OnExportPng"/>
             <AppBarButton Icon="Video" Label="Export Frames" Click="OnExportFrames"/>
             <AppBarButton Icon="Play" Label="Play" Click="OnPlay"/>
             <AppBarButton Icon="Pause" Label="Pause" Click="OnPause"/>
             <AppBarButton Icon="Back" Label="Prev" Click="OnPrev"/>
             <AppBarButton Icon="Forward" Label="Next" Click="OnNext"/>
+            <AppBarToggleButton x:Name="ToggleLoop" Icon="Sync" Label="Loop" Toggled="OnLoopToggled"/>
             <AppBarButton Icon="Upload" Label="Capture Frame" Click="OnCaptureFrame"/>
+            <AppBarButton Icon="Delete" Label="Remove Frame" Click="OnRemoveFrame"/>
+            <AppBarButton Icon="Add" Label="Insert Frame" Click="OnInsertFrame"/>
             <AppBarButton Icon="ZoomIn" Label="Zoom In" Click="OnZoomIn"/>
             <AppBarButton Icon="ZoomOut" Label="Zoom Out" Click="OnZoomOut"/>
             <AppBarButton Icon="Refresh" Label="Reset View" Click="OnZoomReset"/>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton KeyboardAcceleratorTextOverride="Ctrl+S" Icon="Save" Label="Save" Click="OnSavePlaybook"/>
+                <AppBarButton KeyboardAcceleratorTextOverride="Ctrl+Shift+S" Icon="SaveLocal" Label="Save As" Click="OnSaveAsPlaybook"/>
+                <AppBarButton KeyboardAcceleratorTextOverride="Ctrl+O" Icon="OpenFile" Label="Open" Click="OnOpenPlaybook"/>
+            </CommandBar.SecondaryCommands>
         </CommandBar>
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control" Key="S" Invoked="OnAcceleratorSave"/>
+            <KeyboardAccelerator Modifiers="Control,Shift" Key="S" Invoked="OnAcceleratorSaveAs"/>
+            <KeyboardAccelerator Modifiers="Control" Key="O" Invoked="OnAcceleratorOpen"/>
+            <KeyboardAccelerator Modifiers="Control" Key="N" Invoked="OnAcceleratorNewPlay"/>
+            <KeyboardAccelerator Modifiers="Control" Key="D" Invoked="OnAcceleratorDuplicatePlay"/>
+            <KeyboardAccelerator Key="Delete" Invoked="OnAcceleratorDeletePlay"/>
+            <KeyboardAccelerator Key="F5" Invoked="OnAcceleratorPlayPause"/>
+        </Grid.KeyboardAccelerators>
         <StackPanel Grid.Row="1" Orientation="Vertical" Spacing="8">
             <TextBlock Text="Palette" Margin="8,0,0,0"/>
-            <Button Content="Add Sample Token" Click="OnAddSampleToken" Margin="8"/>
+            <ListView x:Name="PaletteList" Margin="8" AllowDrop="False" DragItemsStarting="OnPaletteDragItemsStarting" SelectionMode="Single">
+                <ListView.Items>
+                    <TextBlock Text="sample_data/placeholder1.png"/>
+                    <TextBlock Text="sample_data/placeholder2.png"/>
+                    <TextBlock Text="sample_data/placeholder3.png"/>
+                    <TextBlock Text="Circle Token"/>
+                </ListView.Items>
+            </ListView>
+            <StackPanel Margin="8" Spacing="6">
+                <TextBox x:Name="SearchBox" PlaceholderText="Search plays by title or tag..." TextChanged="OnSearchChanged"/>
+                <TextBlock Text="Play Tags (comma-separated)"/>
+                <TextBox x:Name="PlayTagsBox" PlaceholderText="e.g. baseline out-of-bounds, 2-3 zone" TextChanged="OnPlayTagsChanged"/>
+                <TextBlock Text="Status" FontWeight="SemiBold"/>
+                <TextBlock Text="Active Tool:"/>
+                <TextBlock Text="{x:Bind _vm.ActiveToolName, Mode=OneWay}"/>
+                <TextBlock Text="Undo/Redo:"/>
+                <TextBlock Text="{x:Bind _vm.UndoCount, Mode=OneWay}"/>
+                <TextBlock Text="{x:Bind _vm.RedoCount, Mode=OneWay}"/>
+                <Separator/>
+                <TextBlock Text="Selected Easing:"/>
+                <ComboBox x:Name="EasingCombo" SelectionChanged="OnSelectedEasingChanged">
+                    <ComboBoxItem Content="Linear" IsSelected="True"/>
+                    <ComboBoxItem Content="EaseInOut"/>
+                </ComboBox>
+            </StackPanel>
         </StackPanel>
-        <Grid Grid.Row="1" Grid.Column="1">
-            <controls:CourtView HalfCourt="True" x:Name="Court"/>
+        <Grid Grid.Row="1" Grid.Column="1" x:Name="CanvasGrid" AllowDrop="True" DragOver="OnCanvasDragOver" Drop="OnCanvasDrop">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <controls:CourtView Grid.Row="0" HalfCourt="True" x:Name="Court"/>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="8">
+                <TextBlock Text="Frame:" VerticalAlignment="Center"/>
+                <Slider x:Name="FrameSlider" Minimum="0" Maximum="0" Width="200" ValueChanged="OnFrameSliderChanged"/>
+                <TextBlock Text="Progress:" VerticalAlignment="Center"/>
+                <Slider x:Name="ProgressSlider" Minimum="0" Maximum="1" Width="200" ValueChanged="OnProgressSliderChanged"/>
+                <TextBlock Text="Duration (s):" VerticalAlignment="Center"/>
+                <TextBox x:Name="DurationBox" Width="60" TextChanged="OnDurationChanged"/>
+                <TextBlock Text="{x:Bind _vm.CurrentFrameIndex, Mode=OneWay}" VerticalAlignment="Center"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

@@ -7,9 +7,10 @@ public class DribbleTool : IDrawingTool
 {
     public ToolType Type => ToolType.Dribble;
     private readonly List<Shape> _store;
+    private readonly Action<Shape>? _onCompleted;
     private DashedShape? _current;
 
-    public DribbleTool(List<Shape> shapeStore) => _store = shapeStore;
+    public DribbleTool(List<Shape> shapeStore, Action<Shape>? onCompleted = null) { _store = shapeStore; _onCompleted = onCompleted; }
 
     public void Begin(Vector2 pt, float pressure = 0.5f)
     {
@@ -26,6 +27,7 @@ public class DribbleTool : IDrawingTool
         if (_current == null) return;
         _current.Points.Add(pt);
         _store.Add(_current);
+        _onCompleted?.Invoke(_current);
         _current = null;
     }
 }

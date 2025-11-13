@@ -11,7 +11,9 @@ public class FrameState
         var fs = new FrameState();
         foreach (var s in shapes)
         {
-            fs.Shapes.Add(CloneShape(s));
+            var clone = CloneShape(s);
+            clone.Easing = s.Easing;
+            fs.Shapes.Add(clone);
         }
         return fs;
     }
