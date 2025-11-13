@@ -1,4 +1,4 @@
-# FastBoard (WinUI 3)
+# Scribbleball (WinUI 3)
 
 A Windows desktop basketball play-diagramming app optimized for pen and touch.
 
