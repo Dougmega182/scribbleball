@@ -1,0 +1,13 @@
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\bin\x64\Release\net8.0\App.Core.deps.json
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\bin\x64\Release\net8.0\App.Core.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\bin\x64\Release\net8.0\App.Core.pdb
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.csproj.AssemblyReference.cache
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.GeneratedMSBuildEditorConfig.editorconfig
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.AssemblyInfoInputs.cache
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.AssemblyInfo.cs
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.csproj.CoreCompileInputs.cache
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.sourcelink.json
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\refint\App.Core.dll
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\App.Core.pdb
+E:\Ai\WORK-IN-PROGRESS\basketball app\src\App.Core\obj\x64\Release\net8.0\ref\App.Core.dll

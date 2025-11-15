@@ -187,4 +187,10 @@ public static class BoardStateSerializer
             _ => EaseType.Linear
         };
     }
+
+    private static byte[]? ParseBase64(string? b64)
+    {
+        if (string.IsNullOrEmpty(b64)) return null;
+        try { return Convert.FromBase64String(b64); } catch { return null; }
+    }
 }
