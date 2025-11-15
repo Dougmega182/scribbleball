@@ -10,7 +10,7 @@ public class SerializationTests
     public void Playbook_Roundtrip()
     {
         var pb = new Playbook { Name = "Test" };
-        pb.Plays.Add(new Play { Title = "P1", Frames = { new Frame{ Time=0 }, new Frame{ Time=1 } } });
+        pb.Plays.Add(new Play { Title = "P1", Frames = { new Frame{ Duration=1 }, new Frame{ Duration=1 } } });
         var json = PlaybookSerializer.ToJson(pb);
         var pb2 = PlaybookSerializer.FromJson(json);
         Assert.Equal("Test", pb2.Name);

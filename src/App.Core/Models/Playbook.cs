@@ -19,5 +19,6 @@ public class Play
 public class Frame
 {
     public int Id { get; set; }
-    public double Time { get; set; }
+    public double Duration { get; set; } = 1.0;
+    public List<Shape> Shapes { get; set; } = new();
 }

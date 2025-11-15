@@ -1,0 +1,22 @@
+﻿<Window
+    x:Class="FastBoard.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FastBoard.Controls">
+    <Grid x:ConnectionId='2' x:Name="CanvasGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <controls:CourtView x:ConnectionId='3' x:Name="Court" Grid.Row="0"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="8">
+            <TextBlock Text="Frame:" VerticalAlignment="Center"/>
+            <Slider x:ConnectionId='4' x:Name="FrameSlider" Minimum="0" Maximum="0" Width="200"/>
+            <TextBlock Text="Progress:" VerticalAlignment="Center"/>
+            <Slider x:ConnectionId='5' x:Name="ProgressSlider" Minimum="0" Maximum="1" Width="200"/>
+            <TextBlock Text="Duration (s):" VerticalAlignment="Center"/>
+            <TextBox x:ConnectionId='6' x:Name="DurationBox" Width="60"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

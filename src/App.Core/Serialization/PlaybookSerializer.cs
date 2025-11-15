@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
 using FastBoard.Core.Models;
 
 namespace FastBoard.Core.Serialization;
@@ -67,7 +68,7 @@ public static class PlaybookSerializer
                 {
                     Id = (int)(po["id"]?.GetValue<long>() ?? 0),
                     Title = (string?)po["title"] ?? string.Empty,
-                    Frames = new List<Frame>()
+                    Frames = new List<FastBoard.Core.Models.Frame>()
                 };
                 var framesArr = po["frames"]?.AsArray();
                 if (framesArr != null)
@@ -75,7 +76,7 @@ public static class PlaybookSerializer
                     foreach (var fn in framesArr)
                     {
                         var fo = fn!.AsObject();
-                        var frame = new Frame
+                        var frame = new FastBoard.Core.Models.Frame
                         {
                             Id = (int)(fo["id"]?.GetValue<long>() ?? 0),
                             Duration = (double)(fo["duration"]?.GetValue<double>() ?? 1.0),
